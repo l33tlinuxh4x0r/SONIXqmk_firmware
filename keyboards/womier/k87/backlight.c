@@ -61,10 +61,10 @@ void i2cInit(void)
     SN_CT16B0->MCTRL = (mskCT16_MR0IE_EN | mskCT16_MR0RST_EN);
 
     // COL match register
-    SN_CT16B0->MR0 = 0x01;
+    SN_CT16B0->MR0 = 0x7F;
 
     // Set prescale value
-    SN_CT16B0->PRE = 0x00;
+    SN_CT16B0->PRE = 0x04;
 
     //Set CT16B0 as the up-counting mode.
 	SN_CT16B0->TMRCTRL = (mskCT16_CRST);
@@ -82,23 +82,8 @@ void i2cInit(void)
     I2C_SDA_HIZ;
 }
 
-/**
- * @brief   CT16B0 interrupt handler.
- *
- * @isr
- */
-OSAL_IRQ_HANDLER(SN32_CT16B0_HANDLER) {
-
-    OSAL_IRQ_PROLOGUE();
-
-    SN_CT16B0->IC = mskCT16_MR0IC; // Clear match interrupt status
-
-    //Set CT16B1 as the up-counting mode.
-    SN_CT16B0->TMRCTRL = (mskCT16_CRST);
-
-    // Wait until timer reset done.
-    while (SN_CT16B0->TMRCTRL & mskCT16_CRST);
-
+static inline void i2c_step_state(void)
+{
     switch(i2c_state)
     {
         case I2C_STATE_INACTIVE:
@@ -211,6 +196,36 @@ OSAL_IRQ_HANDLER(SN32_CT16B0_HANDLER) {
             i2c_sda_hi = true;
             break;
     }
+}
+
+/**
+ * @brief   CT16B0 interrupt handler.
+ *
+ * @isr
+ */
+OSAL_IRQ_HANDLER(SN32_CT16B0_HANDLER) {
+
+    OSAL_IRQ_PROLOGUE();
+
+    SN_CT16B0->IC = mskCT16_MR0IC; // Clear match interrupt status
+
+    //Set CT16B1 as the up-counting mode.
+    SN_CT16B0->TMRCTRL = (mskCT16_CRST);
+
+    // Wait until timer reset done.
+    while (SN_CT16B0->TMRCTRL & mskCT16_CRST);
+
+    for(int i = 0; i < 64; i++)
+    {
+        i2c_step_state();
+
+        if(i2c_state == I2C_STATE_INACTIVE)
+        {
+            break;
+        }
+
+        //for(int j = 0; j < 50; j++);
+    }
 
     // Set match interrupts and TC rest
     SN_CT16B0->MCTRL = (mskCT16_MR0IE_EN | mskCT16_MR0STOP_EN);
@@ -282,108 +297,6 @@ char i2cWriteReg(uint8_t devid, uint8_t reg, uint8_t data)
     return 1;
 }
 
-void rgbWhite(uint8_t devid, uint8_t* c)
-{
-    memset(c, 0, 0x100);
-    
-#define asd(e) do{c[e+0x00]=0xFF;c[e+0x10]=0xFF;c[e+0x20]=0xFF;}while(0)
-    if(devid == 0xE8)
-    {
-        asd(0x03); // L_CTRL
-        asd(0x04); // WIN
-        asd(0x05); // L_ALT 
-        asd(0x07); // SPACE
-        asd(0x09); // R_ALT
-        asd(0x0A); // FN
-        asd(0x0B); // APP
-        asd(0x0D); // R_CTRL
-        asd(0x0E); // LEFT
-        asd(0x0F); // DOWN
-        asd(0x36); // UP
-        asd(0x3B); // RIGHT
-        asd(0x61); // PGDN
-        asd(0x60); // END
-        asd(0x91); // HOME
-        asd(0x92); // PGUP
-        asd(0x90); // INS
-        asd(0x98); // DEL
-        asd(0xC0); // F11
-        asd(0xC1); // F12
-        asd(0xC2); // PRINT
-        asd(0xC4); // PAUSE
-        asd(0xC3); // SCROLL LOCK
-        asd(0x97); // K42
-        asd(0xCA); // BACKSPACE
-    }
-    else if(devid == 0xEE)
-    {
-        asd(0x03); // L_SHIFT
-        asd(0x04); // NUBS
-        asd(0x05); // Z
-        asd(0x06); // X
-        asd(0x07); // C
-        asd(0x08); // V
-        asd(0x09); // B
-        asd(0x0A); // N
-        asd(0x0B); // M
-        asd(0x0C); // ,
-        asd(0x0D); // .
-        asd(0x0E); // /
-        asd(0x0F); // R_SHIFT
-        asd(0x30); // CAPS
-        asd(0x31); // A
-        asd(0x32); // S
-        asd(0x36); // D
-        asd(0x37); // F
-        asd(0x38); // G
-        asd(0x39); // H
-        asd(0x3A); // J
-        asd(0x3B); // K
-        asd(0x3C); // L
-        asd(0x3D); // ;
-        asd(0x3E); // '
-        asd(0x3F); // ENTER
-        asd(0x60); // TAB
-        asd(0x61); // Q
-        asd(0x62); // W
-        asd(0x63); // E
-        asd(0x64); // R
-        asd(0x65); // T
-        asd(0x69); // Y
-        asd(0x6A); // U
-        asd(0x6B); // I
-        asd(0x6C); // O
-        asd(0x6D); // P
-        asd(0x6E); // [
-        asd(0x6F); // ]
-        asd(0x90); // `
-        asd(0x91); // 1
-        asd(0x92); // 2
-        asd(0x93); // 3
-        asd(0x94); // 4
-        asd(0x95); // 5
-        asd(0x96); // 6
-        asd(0x97); // 7
-        asd(0x98); // 8
-        asd(0x9C); // 9
-        asd(0x9D); // 0
-        asd(0x9E); // -
-        asd(0x9F); // =
-        asd(0xC0); // ESC
-        asd(0xC1); // F1
-        asd(0xC2); // F2
-        asd(0xC3); // F3
-        asd(0xC4); // F4
-        asd(0xC5); // F5
-        asd(0xC6); // F6
-        asd(0xC7); // F7
-        asd(0xC8); // F8
-        asd(0xC9); // F9 
-        asd(0xCA); // F10
-    }
-#undef asd
-}
-
 enum
 {
     REG_CONFIGURE_COMMAND       = 0xFD,
@@ -415,10 +328,10 @@ enum
     PAGE_VAF                    = 0x0D,
 };
 
-void rgbInit(uint8_t devid)
+void rgbInit(uint8_t devid, volatile LED_TYPE* states)
 {
     static unsigned char led_val[49];
-    static unsigned char state = 0;
+    static unsigned short state = 0;
     unsigned char ret_val = 0;
 
     switch(state)
@@ -427,7 +340,7 @@ void rgbInit(uint8_t devid)
             ret_val = i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FUNCTION);
             break;
         case 1:
-            ret_val = i2cWriteReg(devid, REG_FUNC_SHUTDOWN,           0x00);
+            ret_val = i2cWriteReg(devid, REG_FUNC_SHUTDOWN,           0x01);
             break;
         case 2:
             ret_val = i2cWriteReg(devid, REG_FUNC_CONFIGURATION,      0x00);
@@ -505,45 +418,10 @@ void rgbInit(uint8_t devid)
 
             ret_val = i2cWriteBuf(devid, led_val, 33);
             break;
-        // Column 0-2 LEDs starting at address 0x20, RBG order
         case 16:
-            led_val[0] = 0x20;
-            for(unsigned int led_id = 0; led_id < 16; led_id++)
-            {
-                led_val[led_id + 1 + 0x00] = 0xFF;
-                led_val[led_id + 1 + 0x10] = 0xFF;
-                led_val[led_id + 1 + 0x20] = 0xFF;
-            }
-
-            ret_val = i2cWriteBuf(devid, led_val, 49);
-            break;
-        // Column 3-5 LEDs starting at address 0x50, RBG order
-        case 17:
-            led_val[0] = 0x50;
-            for(unsigned int led_id = 0; led_id < 16; led_id++)
-            {
-                led_val[led_id + 1 + 0x00] = 0xFF;
-                led_val[led_id + 1 + 0x10] = 0xFF;
-                led_val[led_id + 1 + 0x20] = 0xFF;
-            }
-
-            ret_val = i2cWriteBuf(devid, led_val, 49);
-            break;
-        // Column 6-8 LEDs (Red and Blue channels) starting at address 0x80, RBG order
-        case 18:
-            led_val[0] = 0x80;
-            for(unsigned int led_id = 0; led_id < 16; led_id++)
-            {
-                led_val[led_id + 1 + 0x00] = 0xFF;
-                led_val[led_id + 1 + 0x10] = 0xFF;
-            }
-
-            ret_val = i2cWriteBuf(devid, led_val, 33);
-            break;
-        case 19:
              ret_val = i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_2);
              break;
-        case 20:
+        case 17:
             led_val[0] = 0x00;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
@@ -577,64 +455,108 @@ void rgbInit(uint8_t devid)
 
             ret_val = i2cWriteBuf(devid, led_val, 33);
             break;
-        // Column 6-8 LEDs (Green channel) starting at address 0x20, RBG order
-        case 21:
+
+
+
+
+
+
+
+
+
+        case 18:
+            ret_val = i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_1);
+            break;
+        // Column 0-2 LEDs starting at address 0x20, RBG order
+        case 19:
             led_val[0] = 0x20;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
-                led_val[led_id + 1 + 0x00] = 0xFF;
+                led_val[led_id + 1 + 0x00] = states[led_id].r;
+                led_val[led_id + 1 + 0x10] = states[led_id].b;
+                led_val[led_id + 1 + 0x20] = states[led_id].g;
+            }
+
+            ret_val = i2cWriteBuf(devid, led_val, 49);
+            break;
+        // Column 3-5 LEDs starting at address 0x50, RBG order
+        case 20:
+            led_val[0] = 0x50;
+            for(unsigned int led_id = 0; led_id < 16; led_id++)
+            {
+                led_val[led_id + 1 + 0x00] = states[led_id].r;
+                led_val[led_id + 1 + 0x10] = states[led_id].b;
+                led_val[led_id + 1 + 0x20] = states[led_id].g;
+            }
+
+            ret_val = i2cWriteBuf(devid, led_val, 49);
+            break;
+        // Column 6-8 LEDs (Red and Blue channels) starting at address 0x80, RBG order
+        case 21:
+            led_val[0] = 0x80;
+            for(unsigned int led_id = 0; led_id < 16; led_id++)
+            {
+                led_val[led_id + 1 + 0x00] = states[led_id].r;
+                led_val[led_id + 1 + 0x10] = states[led_id].b;
+            }
+
+            ret_val = i2cWriteBuf(devid, led_val, 33);
+            break;
+        case 22:
+            ret_val = i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_2);
+            break;
+        // Column 6-8 LEDs (Green channel) starting at address 0x20, RBG order
+        case 23:
+            led_val[0] = 0x20;
+            for(unsigned int led_id = 0; led_id < 16; led_id++)
+            {
+                led_val[led_id + 1 + 0x00] = states[led_id].g;
             }
 
             ret_val = i2cWriteBuf(devid, led_val, 17);
             break;
         // Column 7-9 LEDs starting at address 0x30, RBG order
-        case 22:
+        case 24:
             led_val[0] = 0x30;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
-                led_val[led_id + 1 + 0x00] = 0xFF;
-                led_val[led_id + 1 + 0x10] = 0xFF;
-                led_val[led_id + 1 + 0x20] = 0xFF;
+                led_val[led_id + 1 + 0x00] = states[led_id].r;
+                led_val[led_id + 1 + 0x10] = states[led_id].b;
+                led_val[led_id + 1 + 0x20] = states[led_id].g;
             }
 
             ret_val = i2cWriteBuf(devid, led_val, 49);
             break;
         // Column 10-12 LEDs starting at address 0x60, RBG order
-        case 23:
+        case 25:
             led_val[0] = 0x60;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
-                led_val[led_id + 1 + 0x00] = 0xFF;
-                led_val[led_id + 1 + 0x10] = 0xFF;
-                led_val[led_id + 1 + 0x20] = 0xFF;
+                led_val[led_id + 1 + 0x00] = states[led_id].r;
+                led_val[led_id + 1 + 0x10] = states[led_id].b;
+                led_val[led_id + 1 + 0x20] = states[led_id].g;
             }
 
             ret_val = i2cWriteBuf(devid, led_val, 49);
             break;
-        case 24:
-            ret_val = i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FUNCTION);
-            break;
-        case 25:
-            ret_val = i2cWriteReg(devid, REG_FUNC_SHUTDOWN,           0x01);
-            break;
+        //case 24:
+        //    ret_val = i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FUNCTION);
+        //    break;
+        //case 25:
+        //    ret_val = i2cWriteReg(devid, REG_FUNC_SHUTDOWN,           0x01);
+        //    break;
 
         default:
+            ret_val = 1;
+            break;
+
+        case 26:
             ret_val = 0;
+            state = 18;
             break;
     }
     if(ret_val == 1)
     {
         state++;
     }
-}
-
-void rgbChange(uint8_t devid, const uint8_t* states)
-{
-    i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_1);
-    i2cWriteReg(devid, 0x00, 0xFF);
-    i2cWriteReg(devid, 0x01, 0xFF);
-
-    i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_2);
-    i2cWriteReg(devid, 0x00, 0xFF);
-    i2cWriteReg(devid, 0x01, 0xFF);
 }

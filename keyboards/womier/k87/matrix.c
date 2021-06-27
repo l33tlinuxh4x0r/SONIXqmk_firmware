@@ -74,12 +74,8 @@ static void init_pins(void) {
 }
 #else
 
-void rgbInit(uint8_t devid);
+void rgbInit(uint8_t devid, volatile LED_TYPE* states);
 void i2cInit(void);
-void rgbWhite(uint8_t devid, uint8_t* c);
-void rgbChange(uint8_t devid, const uint8_t* states);
-bool i2cBusWriteByte(int value);
-char i2cWriteReg(uint8_t devid, uint8_t reg, uint8_t data);
 
 static void init_pins(void) {
 
@@ -245,7 +241,7 @@ void matrix_init(void) {
 }
 
 uint8_t matrix_scan(void) {
-    rgbInit(0xE8);
+    rgbInit(0xE8, led_state);
     matrix_changed = false;
     for (uint8_t current_col = 0; current_col < MATRIX_COLS; current_col++) {
         for (uint8_t row_index = 0; row_index < MATRIX_ROWS; row_index++) {
@@ -320,6 +316,7 @@ OSAL_IRQ_HANDLER(SN32_CT16B1_HANDLER) {
             // Disable the column
             writePinHigh(row_pins[row_index]);
         }
+
     }
 
     uint8_t row_idx = hw_row_to_matrix_row[current_row];
