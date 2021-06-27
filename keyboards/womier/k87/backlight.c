@@ -30,22 +30,16 @@
 enum
 {
     I2C_STATE_INACTIVE          = 0,
-    I2C_STATE_START_COND_SDA    = 1,
-    I2C_STATE_START_COND_SCL    = 2,
-    I2C_STATE_SEND_ADDR_RW      = 3,
-    I2C_STATE_READ_ACK          = 4,
-    I2C_STATE_WRITE_BYTE        = 5,
-    I2C_STATE_READ_BYTE         = 6,
-    I2C_STATE_STOP_COND_SCL     = 7,
-    I2C_STATE_STOP_COND_SDA     = 8,
+    I2C_STATE_START_COND        = 1,
+    I2C_STATE_SEND_ADDR_RW      = 2,
+    I2C_STATE_READ_ACK          = 3,
+    I2C_STATE_WRITE_BYTE        = 4,
+    I2C_STATE_READ_BYTE         = 5,
+    I2C_STATE_STOP_COND         = 6,
 };
 
 static uint8_t  i2c_state   = 0;
-static bool     i2c_scl_hi  = false;
-static bool     i2c_sda_hi  = false;
-static uint8_t  i2c_bit_ct  = 0;
 static uint8_t  i2c_byte_ct = 0;
-//static bool     i2c_actv    = false;
 static uint8_t  i2c_addr_rw = 0;
 static uint8_t* i2c_data_ptr;
 static uint8_t  i2c_data_byte[2] = {0};
@@ -64,7 +58,7 @@ void i2cInit(void)
     SN_CT16B0->MR0 = 0x7F;
 
     // Set prescale value
-    SN_CT16B0->PRE = 0x04;
+    SN_CT16B0->PRE = 0x00;
 
     //Set CT16B0 as the up-counting mode.
 	SN_CT16B0->TMRCTRL = (mskCT16_CRST);
@@ -82,6 +76,23 @@ void i2cInit(void)
     I2C_SDA_HIZ;
 }
 
+static inline void process_i2c_bit(void)
+{
+if(i2c_tx_byte & 0x80)
+{
+    I2C_SDA_HIZ;
+}
+else
+{
+    I2C_SDA_LO;
+}
+
+i2c_tx_byte = i2c_tx_byte << 1;
+
+I2C_SCL_HIZ;
+I2C_SCL_LO;
+}
+
 static inline void i2c_step_state(void)
 {
     switch(i2c_state)
@@ -89,111 +100,66 @@ static inline void i2c_step_state(void)
         case I2C_STATE_INACTIVE:
             break;
 
-        case I2C_STATE_START_COND_SDA:
+        case I2C_STATE_START_COND:
             I2C_SDA_LO;
-            i2c_state = I2C_STATE_START_COND_SCL;
-            i2c_sda_hi = false;
-            break;
-
-        case I2C_STATE_START_COND_SCL:
             I2C_SCL_LO;
+
             i2c_state = I2C_STATE_SEND_ADDR_RW;
-            i2c_bit_ct = 8;
+
             i2c_tx_byte = i2c_addr_rw;
             i2c_data_idx = 0;
-            i2c_scl_hi = false;
             break;
 
         case I2C_STATE_SEND_ADDR_RW:
         case I2C_STATE_WRITE_BYTE:
-            if(i2c_bit_ct > 0)
+            process_i2c_bit();
+            process_i2c_bit();
+            process_i2c_bit();
+            process_i2c_bit();
+            process_i2c_bit();
+            process_i2c_bit();
+            process_i2c_bit();
+            process_i2c_bit();
+
+            if(i2c_state == I2C_STATE_WRITE_BYTE)
             {
-                if(i2c_scl_hi == false)
-                {
-                    if(i2c_tx_byte & 0x80)
-                    {
-                        I2C_SDA_HIZ;
-                        i2c_sda_hi = true;
-                    }
-                    else
-                    {
-                        I2C_SDA_LO;
-                        i2c_sda_hi = false;
-                    }
-
-                    i2c_tx_byte = i2c_tx_byte << 1;
-
-                    I2C_SCL_HIZ;
-                    i2c_scl_hi = true;
-                }
-                else
-                {
-                    I2C_SCL_LO;
-                    i2c_scl_hi = false;
-                    i2c_bit_ct = i2c_bit_ct - 1;
-                }
+                i2c_byte_ct = i2c_byte_ct - 1;
+                i2c_data_idx = i2c_data_idx + 1;
             }
-            else
-            {
-                if(i2c_state == I2C_STATE_WRITE_BYTE)
-                {
-                    i2c_byte_ct = i2c_byte_ct - 1;
-                    i2c_data_idx = i2c_data_idx + 1;
-                }
 
-                i2c_state = I2C_STATE_READ_ACK;
-            }
+            i2c_state = I2C_STATE_READ_ACK;
             break;
 
         case I2C_STATE_READ_ACK:
-            if(i2c_scl_hi == false)
+            I2C_SDA_HIZ;
+            I2C_SCL_HIZ;
+            if(!I2C_SDA_IN)
             {
-                I2C_SDA_HIZ;
-                i2c_sda_hi = true;
-
-                I2C_SCL_HIZ;
-                i2c_scl_hi = true;
-            }
-            else
-            {
-                if(!I2C_SDA_IN)
+                // Slave did ACK, move on to data
+                if(i2c_byte_ct > 0)
                 {
-                    // Slave did ACK, move on to data
-                    if(i2c_byte_ct > 0)
-                    {
-                        i2c_state = I2C_STATE_WRITE_BYTE;
-                        i2c_bit_ct = 8;
-                        i2c_tx_byte = i2c_data_ptr[i2c_data_idx];
-                    }
-                    else
-                    {
-                        i2c_state = I2C_STATE_STOP_COND_SCL;
-                    }
+                    i2c_state = I2C_STATE_WRITE_BYTE;
+                    i2c_tx_byte = i2c_data_ptr[i2c_data_idx];
                 }
                 else
                 {
-                    // Slave did not ACK, send stop condition
-                    i2c_state = I2C_STATE_STOP_COND_SCL;
+                    i2c_state = I2C_STATE_STOP_COND;
                 }
-
-                I2C_SDA_LO;
-                i2c_sda_hi = false;
-
-                I2C_SCL_LO;
-                i2c_scl_hi = false;
             }
+            else
+            {
+                // Slave did not ACK, send stop condition
+                i2c_state = I2C_STATE_STOP_COND;
+            }
+
+            I2C_SDA_LO;
+            I2C_SCL_LO;
             break;
 
-        case I2C_STATE_STOP_COND_SCL:
+        case I2C_STATE_STOP_COND:
             I2C_SCL_HIZ;
-            i2c_state = I2C_STATE_STOP_COND_SDA;
-            i2c_scl_hi = true;
-            break;
-
-        case I2C_STATE_STOP_COND_SDA:
             I2C_SDA_HIZ;
             i2c_state = I2C_STATE_INACTIVE;
-            i2c_sda_hi = true;
             break;
     }
 }
@@ -206,7 +172,7 @@ static inline void i2c_step_state(void)
 OSAL_IRQ_HANDLER(SN32_CT16B0_HANDLER) {
 
     OSAL_IRQ_PROLOGUE();
-
+    
     SN_CT16B0->IC = mskCT16_MR0IC; // Clear match interrupt status
 
     //Set CT16B1 as the up-counting mode.
@@ -215,7 +181,7 @@ OSAL_IRQ_HANDLER(SN32_CT16B0_HANDLER) {
     // Wait until timer reset done.
     while (SN_CT16B0->TMRCTRL & mskCT16_CRST);
 
-    for(int i = 0; i < 64; i++)
+    for(int i = 0; i < 32; i++)
     {
         i2c_step_state();
 
@@ -223,8 +189,6 @@ OSAL_IRQ_HANDLER(SN32_CT16B0_HANDLER) {
         {
             break;
         }
-
-        //for(int j = 0; j < 50; j++);
     }
 
     // Set match interrupts and TC rest
@@ -243,7 +207,7 @@ bool i2cBusWriteByte(int value)
 {
     if(i2c_state == I2C_STATE_INACTIVE)
     {
-        i2c_state = I2C_STATE_START_COND_SDA;
+        i2c_state = I2C_STATE_START_COND;
         i2c_addr_rw = (uint8_t)0xE8;
         i2c_data_byte[0] = value;
 
@@ -264,7 +228,7 @@ char i2cWriteBuf(uint8_t devid, uint8_t* data, uint8_t len)
         return 0;
     }
     
-    i2c_state = I2C_STATE_START_COND_SDA;
+    i2c_state = I2C_STATE_START_COND;
     i2c_addr_rw = devid;
 
     i2c_data_ptr = data;
@@ -283,7 +247,7 @@ char i2cWriteReg(uint8_t devid, uint8_t reg, uint8_t data)
         return 0;
     }
     
-    i2c_state = I2C_STATE_START_COND_SDA;
+    i2c_state = I2C_STATE_START_COND;
     i2c_addr_rw = devid;
     i2c_data_byte[0] = reg;
     i2c_data_byte[1] = data;
