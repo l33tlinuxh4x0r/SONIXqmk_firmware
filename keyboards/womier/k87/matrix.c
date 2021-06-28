@@ -46,7 +46,6 @@ static bool matrix_changed = false;
 static uint8_t current_row = 0;
 
 extern volatile LED_TYPE led_state[LED_MATRIX_ROWS * LED_MATRIX_COLS];
-extern volatile LED_TYPE underglow_led_state[UNDERGLOW_LED_TOTAL];
 
 __attribute__((weak)) void matrix_init_kb(void) { matrix_init_user(); }
 
@@ -75,7 +74,6 @@ static void init_pins(void) {
 }
 #else
 
-void rgbInit(uint8_t devid, volatile LED_TYPE* states);
 void i2cInit(void);
 
 static void init_pins(void) {
@@ -242,7 +240,6 @@ void matrix_init(void) {
 }
 
 uint8_t matrix_scan(void) {
-    rgbInit(0xE8, underglow_led_state);
     matrix_changed = false;
     for (uint8_t current_col = 0; current_col < MATRIX_COLS; current_col++) {
         for (uint8_t row_index = 0; row_index < MATRIX_ROWS; row_index++) {

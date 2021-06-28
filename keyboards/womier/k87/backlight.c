@@ -4,7 +4,6 @@
 #include <SN32F240B.h>
 #include "ch.h"
 #include "hal.h"
-#include "CT16.h"
 
 #include "color.h"
 #include "wait.h"
@@ -48,30 +47,6 @@ static uint8_t  i2c_tx_byte = 0;
 
 void i2cInit(void)
 {
-    // Enable Timer Clock
-    SN_SYS1->AHBCLKEN_b.CT16B0CLKEN = 1;
-
-    // Set match interrupts and TC rest
-    SN_CT16B0->MCTRL = (mskCT16_MR0IE_EN | mskCT16_MR0RST_EN);
-
-    // COL match register
-    SN_CT16B0->MR0 = 0x7F;
-
-    // Set prescale value
-    SN_CT16B0->PRE = 0x00;
-
-    //Set CT16B0 as the up-counting mode.
-	SN_CT16B0->TMRCTRL = (mskCT16_CRST);
-
-    // Wait until timer reset done.
-    while (SN_CT16B0->TMRCTRL & mskCT16_CRST);
-
-    // Let TC start counting.
-    SN_CT16B0->TMRCTRL |= mskCT16_CEN_EN;
-
-    NVIC_ClearPendingIRQ(CT16B0_IRQn);
-    nvicEnableVector(CT16B0_IRQn, 3);
-
     I2C_SCL_HIZ;
     I2C_SDA_HIZ;
 }
@@ -164,78 +139,13 @@ static inline void i2c_step_state(void)
     }
 }
 
-/**
- * @brief   CT16B0 interrupt handler.
- *
- * @isr
- */
-OSAL_IRQ_HANDLER(SN32_CT16B0_HANDLER) {
-
-    OSAL_IRQ_PROLOGUE();
-    
-    SN_CT16B0->IC = mskCT16_MR0IC; // Clear match interrupt status
-
-    //Set CT16B1 as the up-counting mode.
-    SN_CT16B0->TMRCTRL = (mskCT16_CRST);
-
-    // Wait until timer reset done.
-    while (SN_CT16B0->TMRCTRL & mskCT16_CRST);
-
-    for(int i = 0; i < 32; i++)
-    {
-        i2c_step_state();
-
-        if(i2c_state == I2C_STATE_INACTIVE)
-        {
-            break;
-        }
-    }
-
-    // Set match interrupts and TC rest
-    SN_CT16B0->MCTRL = (mskCT16_MR0IE_EN | mskCT16_MR0STOP_EN);
-    
-    if(i2c_state != I2C_STATE_INACTIVE)
-    {
-        // Let TC start counting.
-        SN_CT16B0->TMRCTRL |= mskCT16_CEN_EN;
-    }
-
-    OSAL_IRQ_EPILOGUE();
-}
-
-bool i2cBusWriteByte(int value)
-{
-    if(i2c_state == I2C_STATE_INACTIVE)
-    {
-        i2c_state = I2C_STATE_START_COND;
-        i2c_addr_rw = (uint8_t)0xE8;
-        i2c_data_byte[0] = value;
-
-        i2c_data_ptr = i2c_data_byte;
-        i2c_byte_ct = 1;
-
-        // Let TC start counting.
-        SN_CT16B0->TMRCTRL |= mskCT16_CEN_EN;
-    }
-
-    return 0;
-}
-
 char i2cWriteBuf(uint8_t devid, uint8_t* data, uint8_t len)
 {   
-    if(i2c_state != I2C_STATE_INACTIVE)
-    {
-        return 0;
-    }
-    
     i2c_state = I2C_STATE_START_COND;
     i2c_addr_rw = devid;
 
     i2c_data_ptr = data;
     i2c_byte_ct = len;
-
-//    // Let TC start counting.
-//    SN_CT16B0->TMRCTRL |= mskCT16_CEN_EN;
 
     while(i2c_state != I2C_STATE_INACTIVE)
     {
@@ -246,12 +156,7 @@ char i2cWriteBuf(uint8_t devid, uint8_t* data, uint8_t len)
 }
 
 char i2cWriteReg(uint8_t devid, uint8_t reg, uint8_t data)
-{
-    if(i2c_state != I2C_STATE_INACTIVE)
-    {
-        return 0;
-    }
-    
+{    
     i2c_state = I2C_STATE_START_COND;
     i2c_addr_rw = devid;
     i2c_data_byte[0] = reg;
@@ -259,9 +164,6 @@ char i2cWriteReg(uint8_t devid, uint8_t reg, uint8_t data)
 
     i2c_data_ptr = i2c_data_byte;
     i2c_byte_ct = 2;
-
-    //// Let TC start counting.
-    //SN_CT16B0->TMRCTRL |= mskCT16_CEN_EN;
 
     while(i2c_state != I2C_STATE_INACTIVE)
     {
@@ -433,10 +335,10 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
 
 
 
-        // Column 0-2 LEDs starting at address 0x20, RBG order
         case 18:
             ret_val = i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_1);
 
+            // Column 0-2 LEDs starting at address 0x20, RBG order
             led_val[0] = 0x20;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
@@ -447,6 +349,7 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
 
             ret_val = i2cWriteBuf(devid, led_val, 49);
 
+            // Column 3-5 LEDs starting at address 0x50, RBG order
             led_val[0] = 0x50;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
@@ -456,9 +359,8 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
             }
 
             ret_val = i2cWriteBuf(devid, led_val, 49);
-            break;
-        // Column 6-8 LEDs (Red and Blue channels) starting at address 0x80, RBG order
-        case 19:
+
+            // Column 6-8 LEDs (Red and Blue channels) starting at address 0x80, RBG order
             led_val[0] = 0x80;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
@@ -469,10 +371,10 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
             ret_val = i2cWriteBuf(devid, led_val, 33);
             break;
 
-        // Column 6-8 LEDs (Green channel) starting at address 0x20, RBG order
-        case 20:
+        case 19:
             ret_val = i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_2);
 
+            // Column 6-8 LEDs (Green channel) starting at address 0x20, RBG order
             led_val[0] = 0x20;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
@@ -480,9 +382,8 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
             }
 
             ret_val = i2cWriteBuf(devid, led_val, 17);
-            break;
-        // Column 7-9 LEDs starting at address 0x30, RBG order
-        case 21:
+
+            // Column 7-9 LEDs starting at address 0x30, RBG order
             led_val[0] = 0x30;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
@@ -492,9 +393,8 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
             }
 
             ret_val = i2cWriteBuf(devid, led_val, 49);
-            break;
-        // Column 10-12 LEDs starting at address 0x60, RBG order
-        case 22:
+
+            // Column 10-12 LEDs starting at address 0x60, RBG order
             led_val[0] = 0x60;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
@@ -510,7 +410,7 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
             ret_val = 1;
             break;
 
-        case 23:
+        case 20:
             ret_val = 0;
             state = 18;
             break;
