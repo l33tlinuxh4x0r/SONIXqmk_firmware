@@ -46,9 +46,12 @@ uint8_t led_pos[MATRIX_LED_TOTAL];
 
 uint8_t underglow_led_pos[UNDERGLOW_LED_TOTAL] = { 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 60, 61, 62, 63, 79, 78, 75, 59, 55, 56, 32, 33, 34, 35, 36, 37, 41, 42, 43, 44, 45, 46, 47, 16, 17, 18, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 };
 
+void i2cInit(void);
 void rgbInit(uint8_t devid, volatile LED_TYPE* states);
 
 void init(void) {
+    i2cInit();
+
     unsigned int i = 0;
     for (unsigned int y = 0; y < LED_MATRIX_ROWS; y++) {
         for (unsigned int x = 0; x < LED_MATRIX_COLS; x++) {

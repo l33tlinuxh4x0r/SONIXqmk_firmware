@@ -208,56 +208,28 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
 {
     static unsigned char led_val[49];
     static unsigned short state = 0;
-    unsigned char ret_val = 0;
 
     switch(state)
     {
-        case 0:
-            ret_val = i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FUNCTION);
+        case 100:
+            i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FUNCTION);
+            i2cWriteReg(devid, REG_FUNC_SHUTDOWN,           0x01);
+            i2cWriteReg(devid, REG_FUNC_CONFIGURATION,      0x00);
+            i2cWriteReg(devid, REG_FUNC_PICTURE_DISPLAY,    0x10);
+            i2cWriteReg(devid, REG_FUNC_DISPLAY_OPTION,     0x00);
+            i2cWriteReg(devid, REG_FUNC_AUDIO_SYNC,         0x00);
+            i2cWriteReg(devid, REG_FUNC_BREATH_CONTROL_1,   0x00);
+            i2cWriteReg(devid, REG_FUNC_BREATH_CONTROL_2,   0x00);
+            i2cWriteReg(devid, REG_FUNC_AUDIO_GAIN_CONTROL, 0x00);
+            i2cWriteReg(devid, REG_FUNC_STAGGERED_DELAY,    0x0F);
+            i2cWriteReg(devid, REG_FUNC_SLEW_RATE_CONTROL,  0x01);
+            i2cWriteReg(devid, REG_FUNC_VAF_1,              68);
+            i2cWriteReg(devid, REG_FUNC_VAF_2,              128);
+            i2cWriteReg(devid, REG_FUNC_CURRENT_CONTROL,    153);
             break;
-        case 1:
-            ret_val = i2cWriteReg(devid, REG_FUNC_SHUTDOWN,           0x01);
-            break;
-        case 2:
-            ret_val = i2cWriteReg(devid, REG_FUNC_CONFIGURATION,      0x00);
-            break;
-        case 3:
-            ret_val = i2cWriteReg(devid, REG_FUNC_PICTURE_DISPLAY,    0x10);
-            break;
-        case 4:
-            ret_val = i2cWriteReg(devid, REG_FUNC_DISPLAY_OPTION,     0x00);
-            break;
-        case 5:
-            ret_val = i2cWriteReg(devid, REG_FUNC_AUDIO_SYNC,         0x00);
-            break;
-        case 6:
-            ret_val = i2cWriteReg(devid, REG_FUNC_BREATH_CONTROL_1,   0x00);
-            break;
-        case 7:
-            ret_val = i2cWriteReg(devid, REG_FUNC_BREATH_CONTROL_2,   0x00);
-            break;
-        case 8:
-            ret_val = i2cWriteReg(devid, REG_FUNC_AUDIO_GAIN_CONTROL, 0x00);
-            break;
-        case 9:
-            ret_val = i2cWriteReg(devid, REG_FUNC_STAGGERED_DELAY,    0x0F);
-            break;
-        case 10:
-            ret_val = i2cWriteReg(devid, REG_FUNC_SLEW_RATE_CONTROL,  0x01);
-            break;
-        case 11:
-            ret_val = i2cWriteReg(devid, REG_FUNC_VAF_1,              68);
-            break;
-        case 12:
-            ret_val = i2cWriteReg(devid, REG_FUNC_VAF_2,              128);
-            break;
-        case 13:
-            ret_val = i2cWriteReg(devid, REG_FUNC_CURRENT_CONTROL,    153);
-            break;
-        case 14:
-            ret_val = i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_1);
-            break;
-        case 15:
+
+        case 101:
+            i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_1);
             led_val[0] = 0x00;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
@@ -292,12 +264,11 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
             led_val[0x0F] = 0b00111111;
             led_val[0x10] = 0b11111110;
 
-            ret_val = i2cWriteBuf(devid, led_val, 33);
+            i2cWriteBuf(devid, led_val, 33);
             break;
-        case 16:
-             ret_val = i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_2);
-             break;
-        case 17:
+
+        case 102:
+            i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_2);
             led_val[0] = 0x00;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
@@ -329,14 +300,14 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
             led_val[0x0D] = 0b00000000;
             led_val[0x0E] = 0b11001000;
 
-            ret_val = i2cWriteBuf(devid, led_val, 33);
+            i2cWriteBuf(devid, led_val, 33);
             break;
 
 
 
 
-        case 18:
-            ret_val = i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_1);
+        case 103:
+            i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_1);
 
             // Column 0-2 LEDs starting at address 0x20, RBG order
             led_val[0] = 0x20;
@@ -347,7 +318,7 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
                 led_val[led_id + 1 + 0x20] = states[led_id].g;
             }
 
-            ret_val = i2cWriteBuf(devid, led_val, 49);
+            i2cWriteBuf(devid, led_val, 49);
 
             // Column 3-5 LEDs starting at address 0x50, RBG order
             led_val[0] = 0x50;
@@ -358,7 +329,7 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
                 led_val[led_id + 1 + 0x20] = states[led_id + 16].g;
             }
 
-            ret_val = i2cWriteBuf(devid, led_val, 49);
+            i2cWriteBuf(devid, led_val, 49);
 
             // Column 6-8 LEDs (Red and Blue channels) starting at address 0x80, RBG order
             led_val[0] = 0x80;
@@ -368,11 +339,11 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
                 led_val[led_id + 1 + 0x10] = states[led_id + 32].b;
             }
 
-            ret_val = i2cWriteBuf(devid, led_val, 33);
+            i2cWriteBuf(devid, led_val, 33);
             break;
 
-        case 19:
-            ret_val = i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_2);
+        case 104:
+            i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_2);
 
             // Column 6-8 LEDs (Green channel) starting at address 0x20, RBG order
             led_val[0] = 0x20;
@@ -381,7 +352,7 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
                 led_val[led_id + 1 + 0x00] = states[led_id + 32].g;
             }
 
-            ret_val = i2cWriteBuf(devid, led_val, 17);
+            i2cWriteBuf(devid, led_val, 17);
 
             // Column 7-9 LEDs starting at address 0x30, RBG order
             led_val[0] = 0x30;
@@ -392,7 +363,7 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
                 led_val[led_id + 1 + 0x20] = states[led_id + 48].g;
             }
 
-            ret_val = i2cWriteBuf(devid, led_val, 49);
+            i2cWriteBuf(devid, led_val, 49);
 
             // Column 10-12 LEDs starting at address 0x60, RBG order
             led_val[0] = 0x60;
@@ -403,20 +374,10 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
                 led_val[led_id + 1 + 0x20] = states[led_id + 64].g;
             }
 
-            ret_val = i2cWriteBuf(devid, led_val, 49);
-            break;
+            i2cWriteBuf(devid, led_val, 49);
 
-        default:
-            ret_val = 1;
-            break;
-
-        case 20:
-            ret_val = 0;
-            state = 18;
+            state = 102;
             break;
     }
-    if(ret_val == 1)
-    {
-        state++;
-    }
+    state++;
 }

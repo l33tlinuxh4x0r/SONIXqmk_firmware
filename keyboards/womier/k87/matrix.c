@@ -74,12 +74,7 @@ static void init_pins(void) {
 }
 #else
 
-void i2cInit(void);
-
-static void init_pins(void) {
-
-    i2cInit();
-    
+static void init_pins(void) {    
     //  Unselect ROWs
     for (uint8_t x = 0; x < MATRIX_ROWS; x++) {
         setPinOutput(row_pins[x]);
@@ -224,7 +219,7 @@ void matrix_init(void) {
     SN_CT16B1->MR22 = 0xFF;
 
     // Set prescale value
-    SN_CT16B1->PRE = 0x06;
+    SN_CT16B1->PRE = 0x0A;
 
     //Set CT16B1 as the up-counting mode.
 	SN_CT16B1->TMRCTRL = (mskCT16_CRST);
