@@ -46,6 +46,7 @@ static bool matrix_changed = false;
 static uint8_t current_row = 0;
 
 extern volatile LED_TYPE led_state[LED_MATRIX_ROWS * LED_MATRIX_COLS];
+extern volatile LED_TYPE underglow_led_state[UNDERGLOW_LED_TOTAL];
 
 __attribute__((weak)) void matrix_init_kb(void) { matrix_init_user(); }
 
@@ -225,7 +226,7 @@ void matrix_init(void) {
     SN_CT16B1->MR22 = 0xFF;
 
     // Set prescale value
-    SN_CT16B1->PRE = 0x02;
+    SN_CT16B1->PRE = 0x04;
 
     //Set CT16B1 as the up-counting mode.
 	SN_CT16B1->TMRCTRL = (mskCT16_CRST);
@@ -241,7 +242,7 @@ void matrix_init(void) {
 }
 
 uint8_t matrix_scan(void) {
-    rgbInit(0xE8, led_state);
+    rgbInit(0xE8, underglow_led_state);
     matrix_changed = false;
     for (uint8_t current_col = 0; current_col < MATRIX_COLS; current_col++) {
         for (uint8_t row_index = 0; row_index < MATRIX_ROWS; row_index++) {

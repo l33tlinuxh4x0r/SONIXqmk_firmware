@@ -431,6 +431,7 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
         case 18:
             ret_val = i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_1);
             break;
+
         // Column 0-2 LEDs starting at address 0x20, RBG order
         case 19:
             led_val[0] = 0x20;
@@ -443,14 +444,15 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
 
             ret_val = i2cWriteBuf(devid, led_val, 49);
             break;
+
         // Column 3-5 LEDs starting at address 0x50, RBG order
         case 20:
             led_val[0] = 0x50;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
-                led_val[led_id + 1 + 0x00] = states[led_id].r;
-                led_val[led_id + 1 + 0x10] = states[led_id].b;
-                led_val[led_id + 1 + 0x20] = states[led_id].g;
+                led_val[led_id + 1 + 0x00] = states[led_id + 16].r;
+                led_val[led_id + 1 + 0x10] = states[led_id + 16].b;
+                led_val[led_id + 1 + 0x20] = states[led_id + 16].g;
             }
 
             ret_val = i2cWriteBuf(devid, led_val, 49);
@@ -460,8 +462,8 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
             led_val[0] = 0x80;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
-                led_val[led_id + 1 + 0x00] = states[led_id].r;
-                led_val[led_id + 1 + 0x10] = states[led_id].b;
+                led_val[led_id + 1 + 0x00] = states[led_id + 32].r;
+                led_val[led_id + 1 + 0x10] = states[led_id + 32].b;
             }
 
             ret_val = i2cWriteBuf(devid, led_val, 33);
@@ -474,7 +476,7 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
             led_val[0] = 0x20;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
-                led_val[led_id + 1 + 0x00] = states[led_id].g;
+                led_val[led_id + 1 + 0x00] = states[led_id + 32].g;
             }
 
             ret_val = i2cWriteBuf(devid, led_val, 17);
@@ -484,9 +486,9 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
             led_val[0] = 0x30;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
-                led_val[led_id + 1 + 0x00] = states[led_id].r;
-                led_val[led_id + 1 + 0x10] = states[led_id].b;
-                led_val[led_id + 1 + 0x20] = states[led_id].g;
+                led_val[led_id + 1 + 0x00] = states[led_id + 48].r;
+                led_val[led_id + 1 + 0x10] = states[led_id + 48].b;
+                led_val[led_id + 1 + 0x20] = states[led_id + 48].g;
             }
 
             ret_val = i2cWriteBuf(devid, led_val, 49);
@@ -496,9 +498,9 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
             led_val[0] = 0x60;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
-                led_val[led_id + 1 + 0x00] = states[led_id].r;
-                led_val[led_id + 1 + 0x10] = states[led_id].b;
-                led_val[led_id + 1 + 0x20] = states[led_id].g;
+                led_val[led_id + 1 + 0x00] = states[led_id + 64].r;
+                led_val[led_id + 1 + 0x10] = states[led_id + 64].b;
+                led_val[led_id + 1 + 0x20] = states[led_id + 64].g;
             }
 
             ret_val = i2cWriteBuf(devid, led_val, 49);

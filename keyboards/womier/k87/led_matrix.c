@@ -41,7 +41,10 @@
 */
 
 LED_TYPE led_state[LED_MATRIX_ROWS * LED_MATRIX_COLS];
-uint8_t led_pos[DRIVER_LED_TOTAL];
+LED_TYPE underglow_led_state[UNDERGLOW_HW_TOTAL];
+uint8_t led_pos[MATRIX_LED_TOTAL];
+
+uint8_t underglow_led_pos[UNDERGLOW_LED_TOTAL] = { 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 60, 61, 62, 63, 79, 78, 75, 59, 55, 56, 32, 33, 34, 35, 36, 37, 41, 42, 43, 44, 45, 46, 47, 16, 17, 18, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 };
 
 void init(void) {
     unsigned int i = 0;
@@ -58,10 +61,20 @@ void init(void) {
 static void flush(void) {}
 
 void set_color(int index, uint8_t r, uint8_t g, uint8_t b) {
-    int corrected_index = led_pos[index];
-    led_state[corrected_index].r = r;
-    led_state[corrected_index].g = g;
-    led_state[corrected_index].b = b;
+    if(index < MATRIX_LED_TOTAL)
+    {
+        int corrected_index = led_pos[index];
+        led_state[corrected_index].r = r;
+        led_state[corrected_index].g = g;
+        led_state[corrected_index].b = b;
+    }
+    else
+    {
+        int corrected_index = underglow_led_pos[index - MATRIX_LED_TOTAL];
+        underglow_led_state[corrected_index].r = r;
+        underglow_led_state[corrected_index].g = g;
+        underglow_led_state[corrected_index].b = b;
+    }
 }
 
 static void set_color_all(uint8_t r, uint8_t g, uint8_t b) {
