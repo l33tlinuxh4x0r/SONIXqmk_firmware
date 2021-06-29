@@ -139,7 +139,7 @@ static inline void i2c_step_state(void)
     }
 }
 
-char i2cWriteBuf(uint8_t devid, uint8_t* data, uint8_t len)
+static inline char i2cWriteBuf(uint8_t devid, uint8_t* data, uint8_t len)
 {   
     i2c_state = I2C_STATE_START_COND;
     i2c_addr_rw = devid;
@@ -155,7 +155,7 @@ char i2cWriteBuf(uint8_t devid, uint8_t* data, uint8_t len)
     return 1;
 }
 
-char i2cWriteReg(uint8_t devid, uint8_t reg, uint8_t data)
+static inline char i2cWriteReg(uint8_t devid, uint8_t reg, uint8_t data)
 {    
     i2c_state = I2C_STATE_START_COND;
     i2c_addr_rw = devid;
@@ -350,10 +350,6 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
 
             i2cWriteBuf(devid, led_val, 33);
 
-            state  = 4;
-            break;
-
-        case 4:
             i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_2);
 
             // Column 6-8 LEDs (Green channel) starting at address 0x20, RBG order
