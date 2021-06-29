@@ -350,6 +350,10 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
 
             i2cWriteBuf(devid, led_val, 33);
 
+            state = 4;
+            break;
+
+        case 4:
             i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_2);
 
             // Column 6-8 LEDs (Green channel) starting at address 0x20, RBG order
