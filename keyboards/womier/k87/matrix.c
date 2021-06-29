@@ -219,7 +219,7 @@ void matrix_init(void) {
     SN_CT16B1->MR22 = 0xFF;
 
     // Set prescale value
-    SN_CT16B1->PRE = 0x0C;
+    SN_CT16B1->PRE = 0x10;
 
     //Set CT16B1 as the up-counting mode.
 	SN_CT16B1->TMRCTRL = (mskCT16_CRST);
