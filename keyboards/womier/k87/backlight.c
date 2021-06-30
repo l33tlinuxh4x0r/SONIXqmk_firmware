@@ -19,158 +19,124 @@
 #define I2C_SDA_IN readPin(I2C_SDA)
 
 #define I2C_SCL_HI setPinInputHigh(I2C_SCL)
-#define I2C_SCL_LO do{setPinOutput(I2C_SCL);writePinLow(I2C_SCL);}while(0)
+#define I2C_SCL_LO setPinOutput(I2C_SCL)
 #define I2C_SCL_HIZ setPinInputHigh(I2C_SCL)
 
 #define I2C_SDA_HI setPinInputHigh(I2C_SDA)
-#define I2C_SDA_LO do{setPinOutput(I2C_SDA);writePinLow(I2C_SDA);}while(0)
+#define I2C_SDA_LO setPinOutput(I2C_SDA)
 #define I2C_SDA_HIZ setPinInputHigh(I2C_SDA)
 
-enum
-{
-    I2C_STATE_INACTIVE          = 0,
-    I2C_STATE_START_COND        = 1,
-    I2C_STATE_SEND_ADDR_RW      = 2,
-    I2C_STATE_READ_ACK          = 3,
-    I2C_STATE_WRITE_BYTE        = 4,
-    I2C_STATE_READ_BYTE         = 5,
-    I2C_STATE_STOP_COND         = 6,
-};
-
-static uint8_t  i2c_state   = 0;
 static uint8_t  i2c_byte_ct = 0;
 static uint8_t  i2c_addr_rw = 0;
 static uint8_t* i2c_data_ptr;
 static uint8_t  i2c_data_byte[2] = {0};
-static uint8_t  i2c_data_idx = 0;
 static uint8_t  i2c_tx_byte = 0;
 
-void i2cInit(void)
+void i2c_init(void)
 {
+    writePinLow(I2C_SCL);
+    writePinLow(I2C_SDA);
+
     I2C_SCL_HIZ;
     I2C_SDA_HIZ;
 }
 
-static inline void process_i2c_bit(void)
+static inline void i2c_process_bit(void)
 {
-if(i2c_tx_byte & 0x80)
+    if(i2c_tx_byte & 0x80)
+    {
+        I2C_SDA_HIZ;
+    }
+    else
+    {
+        I2C_SDA_LO;
+    }
+
+    i2c_tx_byte = i2c_tx_byte << 1;
+
+    I2C_SCL_HIZ;
+    I2C_SCL_LO;
+}
+
+static inline void i2c_transaction(void)
 {
+//I2C_STATE_START_COND:
+    I2C_SDA_LO;
+    I2C_SCL_LO;
+
+    i2c_tx_byte = i2c_addr_rw;
+
+//I2C_STATE_SEND_ADDR_RW:
+    i2c_process_bit();
+    i2c_process_bit();
+    i2c_process_bit();
+    i2c_process_bit();
+    i2c_process_bit();
+    i2c_process_bit();
+    i2c_process_bit();
+    i2c_process_bit();
+
+    goto I2C_STATE_READ_ACK;
+
+I2C_STATE_WRITE_BYTE:
+    i2c_process_bit();
+    i2c_process_bit();
+    i2c_process_bit();
+    i2c_process_bit();
+    i2c_process_bit();
+    i2c_process_bit();
+    i2c_process_bit();
+    i2c_process_bit();
+
+    i2c_byte_ct = i2c_byte_ct - 1;
+    i2c_data_ptr++;
+
+I2C_STATE_READ_ACK:
+    I2C_SDA_HIZ;
+    I2C_SCL_HIZ;
+
+    if(!I2C_SDA_IN)
+    {
+        // Slave did ACK, move on to data
+        if(i2c_byte_ct > 0)
+        {
+            i2c_tx_byte = *i2c_data_ptr;
+
+            I2C_SDA_LO;
+            I2C_SCL_LO;
+
+            goto I2C_STATE_WRITE_BYTE;
+        }
+    }
+
+    I2C_SDA_LO;
+    I2C_SCL_LO;
+
+//I2C_STATE_STOP_COND:
+    I2C_SCL_HIZ;
     I2C_SDA_HIZ;
 }
-else
-{
-    I2C_SDA_LO;
-}
 
-i2c_tx_byte = i2c_tx_byte << 1;
-
-I2C_SCL_HIZ;
-I2C_SCL_LO;
-}
-
-static inline void i2c_step_state(void)
-{
-    switch(i2c_state)
-    {
-        case I2C_STATE_INACTIVE:
-            break;
-
-        case I2C_STATE_START_COND:
-            I2C_SDA_LO;
-            I2C_SCL_LO;
-
-            i2c_state = I2C_STATE_SEND_ADDR_RW;
-
-            i2c_tx_byte = i2c_addr_rw;
-            i2c_data_idx = 0;
-            break;
-
-        case I2C_STATE_SEND_ADDR_RW:
-        case I2C_STATE_WRITE_BYTE:
-            process_i2c_bit();
-            process_i2c_bit();
-            process_i2c_bit();
-            process_i2c_bit();
-            process_i2c_bit();
-            process_i2c_bit();
-            process_i2c_bit();
-            process_i2c_bit();
-
-            if(i2c_state == I2C_STATE_WRITE_BYTE)
-            {
-                i2c_byte_ct = i2c_byte_ct - 1;
-                i2c_data_idx = i2c_data_idx + 1;
-            }
-
-            i2c_state = I2C_STATE_READ_ACK;
-            break;
-
-        case I2C_STATE_READ_ACK:
-            I2C_SDA_HIZ;
-            I2C_SCL_HIZ;
-            if(!I2C_SDA_IN)
-            {
-                // Slave did ACK, move on to data
-                if(i2c_byte_ct > 0)
-                {
-                    i2c_state = I2C_STATE_WRITE_BYTE;
-                    i2c_tx_byte = i2c_data_ptr[i2c_data_idx];
-                }
-                else
-                {
-                    i2c_state = I2C_STATE_STOP_COND;
-                }
-            }
-            else
-            {
-                // Slave did not ACK, send stop condition
-                i2c_state = I2C_STATE_STOP_COND;
-            }
-
-            I2C_SDA_LO;
-            I2C_SCL_LO;
-            break;
-
-        case I2C_STATE_STOP_COND:
-            I2C_SCL_HIZ;
-            I2C_SDA_HIZ;
-            i2c_state = I2C_STATE_INACTIVE;
-            break;
-    }
-}
-
-static inline char i2cWriteBuf(uint8_t devid, uint8_t* data, uint8_t len)
+static inline void i2c_write_buf(uint8_t devid, uint8_t* data, uint8_t len)
 {   
-    i2c_state = I2C_STATE_START_COND;
-    i2c_addr_rw = devid;
+    i2c_addr_rw  = devid;
 
     i2c_data_ptr = data;
-    i2c_byte_ct = len;
+    i2c_byte_ct  = len;
 
-    while(i2c_state != I2C_STATE_INACTIVE)
-    {
-        i2c_step_state();
-    }
-
-    return 1;
+    i2c_transaction();
 }
 
-static inline char i2cWriteReg(uint8_t devid, uint8_t reg, uint8_t data)
-{    
-    i2c_state = I2C_STATE_START_COND;
-    i2c_addr_rw = devid;
+static inline void i2c_write_reg(uint8_t devid, uint8_t reg, uint8_t data)
+{
+    i2c_addr_rw      = devid;
     i2c_data_byte[0] = reg;
     i2c_data_byte[1] = data;
 
-    i2c_data_ptr = i2c_data_byte;
-    i2c_byte_ct = 2;
+    i2c_data_ptr     = i2c_data_byte;
+    i2c_byte_ct      = 2;
 
-    while(i2c_state != I2C_STATE_INACTIVE)
-    {
-        i2c_step_state();
-    }
-    
-    return 1;
+    i2c_transaction();
 }
 
 enum
@@ -204,7 +170,7 @@ enum
     PAGE_VAF                    = 0x0D,
 };
 
-void rgbInit(uint8_t devid, volatile LED_TYPE* states)
+void process_backlight(uint8_t devid, volatile LED_TYPE* states)
 {
     static unsigned char led_val[49];
     static unsigned short state = 0;
@@ -212,26 +178,29 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
     switch(state)
     {
         case 0:
-            i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FUNCTION);
-            i2cWriteReg(devid, REG_FUNC_SHUTDOWN,           0x00);
-            i2cWriteReg(devid, REG_FUNC_CONFIGURATION,      0x00);
-            i2cWriteReg(devid, REG_FUNC_PICTURE_DISPLAY,    0x10);
-            i2cWriteReg(devid, REG_FUNC_DISPLAY_OPTION,     0x00);
-            i2cWriteReg(devid, REG_FUNC_AUDIO_SYNC,         0x00);
-            i2cWriteReg(devid, REG_FUNC_BREATH_CONTROL_1,   0x00);
-            i2cWriteReg(devid, REG_FUNC_BREATH_CONTROL_2,   0x00);
-            i2cWriteReg(devid, REG_FUNC_AUDIO_GAIN_CONTROL, 0x00);
-            i2cWriteReg(devid, REG_FUNC_STAGGERED_DELAY,    0x0F);
-            i2cWriteReg(devid, REG_FUNC_SLEW_RATE_CONTROL,  0x01);
-            i2cWriteReg(devid, REG_FUNC_VAF_1,              68);
-            i2cWriteReg(devid, REG_FUNC_VAF_2,              128);
-            i2cWriteReg(devid, REG_FUNC_CURRENT_CONTROL,    153);
+            i2c_init();
+
+            i2c_write_reg(devid, REG_CONFIGURE_COMMAND,       PAGE_FUNCTION);
+            i2c_write_reg(devid, REG_FUNC_SHUTDOWN,           0x00);
+            i2c_write_reg(devid, REG_FUNC_CONFIGURATION,      0x00);
+            i2c_write_reg(devid, REG_FUNC_PICTURE_DISPLAY,    0x10);
+            i2c_write_reg(devid, REG_FUNC_DISPLAY_OPTION,     0x00);
+            i2c_write_reg(devid, REG_FUNC_AUDIO_SYNC,         0x00);
+            i2c_write_reg(devid, REG_FUNC_BREATH_CONTROL_1,   0x00);
+            i2c_write_reg(devid, REG_FUNC_BREATH_CONTROL_2,   0x00);
+            i2c_write_reg(devid, REG_FUNC_AUDIO_GAIN_CONTROL, 0x00);
+            i2c_write_reg(devid, REG_FUNC_STAGGERED_DELAY,    0x0F);
+            i2c_write_reg(devid, REG_FUNC_SLEW_RATE_CONTROL,  0x01);
+            i2c_write_reg(devid, REG_FUNC_VAF_1,              68);
+            i2c_write_reg(devid, REG_FUNC_VAF_2,              128);
+            i2c_write_reg(devid, REG_FUNC_CURRENT_CONTROL,    153);
 
             state = 1;
             break;
 
         case 1:
-            i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_1);
+            i2c_write_reg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_1);
+
             led_val[0] = 0x00;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
@@ -266,13 +235,13 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
             led_val[0x0F] = 0b00111111;
             led_val[0x10] = 0b11111110;
 
-            i2cWriteBuf(devid, led_val, 33);
+            i2c_write_buf(devid, led_val, 33);
 
             state = 2;
             break;
 
         case 2:
-            i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_2);
+            i2c_write_reg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_2);
             led_val[0] = 0x00;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
             {
@@ -304,19 +273,16 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
             led_val[0x0D] = 0b00000000;
             led_val[0x0E] = 0b11001000;
 
-            i2cWriteBuf(devid, led_val, 33);
+            i2c_write_buf(devid, led_val, 33);
 
-            i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FUNCTION);
-            i2cWriteReg(devid, REG_FUNC_SHUTDOWN,           0x01);
+            i2c_write_reg(devid, REG_CONFIGURE_COMMAND,       PAGE_FUNCTION);
+            i2c_write_reg(devid, REG_FUNC_SHUTDOWN,           0x01);
 
             state = 3;
             break;
 
-
-
-
         case 3:
-            i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_1);
+            i2c_write_reg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_1);
 
             // Column 0-2 LEDs starting at address 0x20, RBG order
             led_val[0] = 0x20;
@@ -326,11 +292,7 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
                 led_val[led_id + 1 + 0x10] = states[led_id].b;
                 led_val[led_id + 1 + 0x20] = states[led_id].g;
             }
-
-            i2cWriteBuf(devid, led_val, 49);
-            state = 4;
-            break;
-        case 4:
+            i2c_write_buf(devid, led_val, 49);
 
             // Column 3-5 LEDs starting at address 0x50, RBG order
             led_val[0] = 0x50;
@@ -340,9 +302,12 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
                 led_val[led_id + 1 + 0x10] = states[led_id + 16].b;
                 led_val[led_id + 1 + 0x20] = states[led_id + 16].g;
             }
+            i2c_write_buf(devid, led_val, 49);
 
-            i2cWriteBuf(devid, led_val, 49);
+            state = 4;
+            break;
 
+        case 4:
             // Column 6-8 LEDs (Red and Blue channels) starting at address 0x80, RBG order
             led_val[0] = 0x80;
             for(unsigned int led_id = 0; led_id < 16; led_id++)
@@ -350,14 +315,9 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
                 led_val[led_id + 1 + 0x00] = states[led_id + 32].r;
                 led_val[led_id + 1 + 0x10] = states[led_id + 32].b;
             }
+            i2c_write_buf(devid, led_val, 33);
 
-            i2cWriteBuf(devid, led_val, 33);
-
-            state = 5;
-            break;
-
-        case 5:
-            i2cWriteReg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_2);
+            i2c_write_reg(devid, REG_CONFIGURE_COMMAND,       PAGE_FRAME_2);
 
             // Column 6-8 LEDs (Green channel) starting at address 0x20, RBG order
             led_val[0] = 0x20;
@@ -365,8 +325,7 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
             {
                 led_val[led_id + 1 + 0x00] = states[led_id + 32].g;
             }
-
-            i2cWriteBuf(devid, led_val, 17);
+            i2c_write_buf(devid, led_val, 17);
 
             // Column 7-9 LEDs starting at address 0x30, RBG order
             led_val[0] = 0x37;
@@ -374,21 +333,21 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
             {
                 led_val[led_id - 6 + 0x00] = states[led_id + 48].r;
             }
-            i2cWriteBuf(devid, led_val, 11);
+            i2c_write_buf(devid, led_val, 11);
 
             led_val[0] = 0x47;
             for(unsigned int led_id = 7; led_id < 16; led_id++)
             {
                 led_val[led_id - 6 + 0x00] = states[led_id + 48].b;
             }
-            i2cWriteBuf(devid, led_val, 11);
+            i2c_write_buf(devid, led_val, 11);
 
             led_val[0] = 0x57;
             for(unsigned int led_id = 7; led_id < 16; led_id++)
             {
                 led_val[led_id - 6 + 0x00] = states[led_id + 48].g;
             }
-            i2cWriteBuf(devid, led_val, 11);
+            i2c_write_buf(devid, led_val, 11);
 
             // Column 10-12 LEDs starting at address 0x60, RBG order
             led_val[0] = 0x6B;
@@ -396,21 +355,21 @@ void rgbInit(uint8_t devid, volatile LED_TYPE* states)
             {
                 led_val[led_id - 10 + 0x00] = states[led_id + 64].r;
             }
-            i2cWriteBuf(devid, led_val, 6);
+            i2c_write_buf(devid, led_val, 6);
 
             led_val[0] = 0x7B;
             for(unsigned int led_id = 11; led_id < 16; led_id++)
             {
                 led_val[led_id - 10 + 0x00] = states[led_id + 64].b;
             }
-            i2cWriteBuf(devid, led_val, 6);
+            i2c_write_buf(devid, led_val, 6);
 
             led_val[0] = 0x8B;
             for(unsigned int led_id = 11; led_id < 16; led_id++)
             {
                 led_val[led_id - 10 + 0x00] = states[led_id + 64].g;
             }
-            i2cWriteBuf(devid, led_val, 6);
+            i2c_write_buf(devid, led_val, 6);
 
             state = 3;
             break;
