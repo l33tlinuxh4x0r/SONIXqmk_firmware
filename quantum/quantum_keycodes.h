@@ -142,20 +142,13 @@ enum quantum_keycodes {
     AU_OFF,
     AU_TOG,
 
-    // Faux clicky as part of main audio feature
-    CLICKY_TOGGLE,
-    CLICKY_ENABLE,
-    CLICKY_DISABLE,
-    CLICKY_UP,
-    CLICKY_DOWN,
-    CLICKY_RESET,
-
-#ifdef FAUXCLICKY_ENABLE
-    // Faux clicky
-    FC_ON,
-    FC_OFF,
-    FC_TOG,
-#endif
+    // Audio Clicky
+    CLICKY_TOGGLE,   // 5C20
+    CLICKY_ENABLE,   // 5C21
+    CLICKY_DISABLE,  // 5C22
+    CLICKY_UP,       // 5C23
+    CLICKY_DOWN,     // 5C24
+    CLICKY_RESET,    // 5C25
 
     // Music mode on/off/toggle
     MU_ON,
@@ -585,7 +578,15 @@ enum quantum_keycodes {
 
 #endif
 
-    // always leave at the end
+    // One Shot
+    ONESHOT_ENABLE,
+    ONESHOT_DISABLE,
+    ONESHOT_TOGGLE,
+
+    // RGB underglow/matrix (continued)
+    RGB_MODE_TWINKLE,
+
+    // Start of custom keycode range for keyboards and keymaps - always leave at the end
     SAFE_RANGE
 };
 
@@ -711,13 +712,19 @@ enum quantum_keycodes {
 
 #define EEP_RST EEPROM_RESET
 
+// Audio Clicky aliases
 #define CK_TOGG CLICKY_TOGGLE
 #define CK_RST CLICKY_RESET
 #define CK_UP CLICKY_UP
 #define CK_DOWN CLICKY_DOWN
 #define CK_ON CLICKY_ENABLE
 #define CK_OFF CLICKY_DISABLE
+// Fauxclicky (deprecated) redirects to Audio Clicky
+#define FC_ON CLICKY_ENABLE
+#define FC_OFF CLICKY_DISABLE
+#define FC_TOGG CLICKY_TOGGLE
 
+// RGB aliases
 #define RGB_MOD RGB_MODE_FORWARD
 #define RGB_RMOD RGB_MODE_REVERSE
 
@@ -730,6 +737,7 @@ enum quantum_keycodes {
 #define RGB_M_X RGB_MODE_XMAS
 #define RGB_M_G RGB_MODE_GRADIENT
 #define RGB_M_T RGB_MODE_RGBTEST
+#define RGB_M_TW RGB_MODE_TWINKLE
 
 // L-ayer, T-ap - 256 keycode max, 16 layer max
 #define LT(layer, kc) (QK_LAYER_TAP | (((layer)&0xF) << 8) | ((kc)&0xFF))
@@ -889,3 +897,8 @@ enum quantum_keycodes {
 #define DM_RSTP DYN_REC_STOP
 #define DM_PLY1 DYN_MACRO_PLAY1
 #define DM_PLY2 DYN_MACRO_PLAY2
+
+// One Shot aliases
+#define OS_TOGG ONESHOT_TOGGLE
+#define OS_ON ONESHOT_ENABLE
+#define OS_OFF ONESHOT_DISABLE

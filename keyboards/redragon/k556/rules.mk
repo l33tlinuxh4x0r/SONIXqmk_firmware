@@ -1,5 +1,5 @@
 # project specific files
-SRC = ../../../drivers/sn32/matrix_sn32f248b.c
+SRC = ../../drivers/sn32/matrix_sn32f248b.c
 SRC += config_led.c
 
 ## chip/board settings
@@ -39,7 +39,7 @@ OPT_DEFS = -O2
 # Build Options
 #   comment out to disable the options.
 #
-LTO_ENABLE = no
+LTO_ENABLE = yes
 BACKLIGHT_ENABLE = no
 MAGIC_ENABLE = yes
 MAGIC_KEYCODE_ENABLE = yes
@@ -49,7 +49,7 @@ EXTRAKEY_ENABLE = yes   # Audio control and System control
 CONSOLE_ENABLE = no     # Console for debug
 COMMAND_ENABLE = no     # Commands for debug and configuration
 SLEEP_LED_ENABLE = no   # Breathing sleep LED during USB suspend
-NKRO_ENABLE = no        # USB Nkey Rollover
+NKRO_ENABLE = yes       # USB Nkey Rollover
 AUDIO_ENABLE = no
 RGBLIGHT_ENABLE = no
 SERIAL_LINK_ENABLE = no
