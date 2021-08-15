@@ -52,6 +52,7 @@
 #include "action_layer.h"
 #include "eeconfig.h"
 #include "bootloader.h"
+#include "bootmagic.h"
 #include "timer.h"
 #include "sync_timer.h"
 #include "config_common.h"
@@ -231,15 +232,6 @@ bool     process_record_user(uint16_t keycode, keyrecord_t *record);
 void     post_process_record_kb(uint16_t keycode, keyrecord_t *record);
 void     post_process_record_user(uint16_t keycode, keyrecord_t *record);
 
-#ifndef BOOTMAGIC_LITE_COLUMN
-#    define BOOTMAGIC_LITE_COLUMN 0
-#endif
-#ifndef BOOTMAGIC_LITE_ROW
-#    define BOOTMAGIC_LITE_ROW 0
-#endif
-
-void bootmagic_lite(void);
-
 void reset_keyboard(void);
 
 void startup_user(void);
@@ -248,12 +240,6 @@ void shutdown_user(void);
 void register_code16(uint16_t code);
 void unregister_code16(uint16_t code);
 void tap_code16(uint16_t code);
-
-void     send_dword(uint32_t number);
-void     send_word(uint16_t number);
-void     send_byte(uint8_t number);
-void     send_nibble(uint8_t number);
-uint16_t hex_to_keycode(uint8_t hex);
 
 void led_set_user(uint8_t usb_led);
 void led_set_kb(uint8_t usb_led);

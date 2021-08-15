@@ -47,7 +47,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Mutually exclusive
 #define EECONFIG_LED_MATRIX (uint32_t *)28
 #define EECONFIG_RGB_MATRIX (uint32_t *)28
-#define EECONFIG_RGB_MATRIX_SPEED (uint8_t *)32
+// Speed & Flags
+#define EECONFIG_LED_MATRIX_EXTENDED (uint16_t *)32
+#define EECONFIG_RGB_MATRIX_EXTENDED (uint16_t *)32
+
 // TODO: Combine these into a single word and single block of EEPROM
 #define EECONFIG_KEYMAP_UPPER_BYTE (uint8_t *)34
 // Size of EEPROM being used, other code can refer to this for available EEPROM
@@ -90,11 +93,6 @@ void    eeconfig_update_default_layer(uint8_t val);
 
 uint16_t eeconfig_read_keymap(void);
 void     eeconfig_update_keymap(uint16_t val);
-
-#ifdef BACKLIGHT_ENABLE
-uint8_t eeconfig_read_backlight(void);
-void    eeconfig_update_backlight(uint8_t val);
-#endif
 
 #ifdef AUDIO_ENABLE
 uint8_t eeconfig_read_audio(void);
