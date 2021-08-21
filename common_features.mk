@@ -156,6 +156,11 @@ else
         SRC += $(PLATFORM_COMMON_DIR)/flash_stm32.c
         OPT_DEFS += -DEEPROM_EMU_STM32F072xB
         OPT_DEFS += -DSTM32_EEPROM_ENABLE
+      else ifeq ($(MCU_SERIES)_$(MCU_LDSCRIPT), SN32F240B_SN32F240B)
+        SRC += $(PLATFORM_COMMON_DIR)/eeprom_sn32.c
+        SRC += $(PLATFORM_COMMON_DIR)/flash_sn32.c
+        OPT_DEFS += -DEEPROM_EMU_SN32F240B
+        OPT_DEFS += -DSN32_EEPROM_ENABLE
       else ifeq ($(MCU_SERIES)_$(MCU_LDSCRIPT), STM32F0xx_STM32F042x6)
 
         # Stack sizes: Since this chip has limited RAM capacity, the stack area needs to be reduced.
@@ -244,7 +249,7 @@ endif
 endif
 
 RGB_MATRIX_ENABLE ?= no
-VALID_RGB_MATRIX_TYPES := IS31FL3731 IS31FL3733 IS31FL3737 IS31FL3741 WS2812 custom
+VALID_RGB_MATRIX_TYPES := IS31FL3731 IS31FL3733 IS31FL3737 IS31FL3741 WS2812 SN32F248B custom
 
 ifeq ($(strip $(RGB_MATRIX_ENABLE)), yes)
     ifeq ($(filter $(RGB_MATRIX_DRIVER),$(VALID_RGB_MATRIX_TYPES)),)
@@ -257,7 +262,9 @@ ifneq (,$(filter $(MCU), atmega16u2 atmega32u2 at90usb162))
 endif
     SRC += $(QUANTUM_DIR)/color.c
     SRC += $(QUANTUM_DIR)/rgb_matrix.c
-    SRC += $(QUANTUM_DIR)/rgb_matrix_drivers.c
+    ifneq ($(strip $(RGB_MATRIX_DRIVER)), SN32F248B)
+        SRC += $(QUANTUM_DIR)/rgb_matrix_drivers.c
+    endif
     CIE1931_CURVE := yes
     RGB_KEYCODES_ENABLE := yes
 
@@ -298,6 +305,11 @@ endif
         OPT_DEFS += -DAPA102
         APA102_DRIVER_REQUIRED := yes
     endif
+
+    ifeq ($(strip $(RGB_MATRIX_DRIVER)), SN32F248B)
+        COMMON_VPATH += $(DRIVER_PATH)/sn32
+        SRC += rgb_matrix_sn32f248b.c
+    endif    
 
     ifeq ($(strip $(RGB_MATRIX_CUSTOM_KB)), yes)
         OPT_DEFS += -DRGB_MATRIX_CUSTOM_KB

@@ -51,6 +51,15 @@
 #ifdef MIDI_ENABLE
 #    include "qmk_midi.h"
 #endif
+#ifdef SN32_EEPROM_ENABLE
+#    include "eeprom_sn32.h"
+#endif
+#ifdef STM32_EEPROM_ENABLE
+#    include "eeprom_stm32.h"
+#endif
+#ifdef EEPROM_DRIVER
+#    include "eeprom_driver.h"
+#endif
 #include "suspend.h"
 #include "wait.h"
 
@@ -144,6 +153,17 @@ int main(void) {
     halInit();
     chSysInit();
 
+#ifdef STM32_EEPROM_ENABLE
+    EEPROM_Init();
+#endif
+#ifdef EEPROM_DRIVER
+    eeprom_driver_init();
+#endif
+
+#ifdef SN32_EEPROM_ENABLE
+//    eeprom_initialize();
+#endif
+
     // TESTING
     // chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
 
@@ -226,7 +246,9 @@ int main(void) {
                 /* Remote wakeup */
                 if (suspend_wakeup_condition()) {
                     usbWakeupHost(&USB_DRIVER);
+#if !defined(SN32F24xx)
                     restart_usb_driver(&USB_DRIVER);
+#endif
                 }
             }
             /* Woken up */

@@ -410,6 +410,8 @@ else ifeq ($(strip $(MCU_FAMILY)),KINETIS)
 	$(call EXEC_TEENSY)
 else ifeq ($(strip $(MCU_FAMILY)),STM32)
 	$(call EXEC_DFU_UTIL)
+else ifeq ($(strip $(MCU_FAMILY)),SN32)
+	$(call EXEC_DFU_UTIL)
 else
 	$(PRINT_OK); $(SILENT) || printf "$(MSG_FLASH_BOOTLOADER)"
 endif
