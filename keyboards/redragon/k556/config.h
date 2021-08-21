@@ -39,6 +39,13 @@
 /* Debounce reduces chatter (unintended double-presses) - set 0 if debouncing is not needed */
 #define DEBOUNCE 5
 
+/* Enable NKRO - Up to 248 keys at the same time. */
+#define FORCE_NKRO
+
+/* Enable reactive RGB effects */
+#define RGB_MATRIX_KEYPRESSES
+#define RGB_MATRIX_FRAMEBUFFER_EFFECTS
+
 /* Mechanical locking support. Use KC_LCAP, KC_LNUM or KC_LSCR instead in keymap */
 //#define LOCKING_SUPPORT_ENABLE
 /* Locking resynchronize hack */
@@ -50,3 +57,8 @@
 #define LED_PIN_ON_STATE    0
 
 #include "config_led.h"
+
+// RGB stuff
+#define RGB_MATRIX_FRAMEBUFFER_EFFECTS
+#define RGB_MATRIX_KEYPRESSES
+#define RGB_DISABLE_WHEN_USB_SUSPENDED true

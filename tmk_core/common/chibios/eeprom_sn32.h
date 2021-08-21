@@ -21,6 +21,15 @@
  * This library also assumes that the pages are not used by the firmware.
  */
 
+#pragma once
+
+// teensy stuff
+#include <stdint.h>
+#include <stdbool.h>
+
+// Size of EEPROM being used, other code can refer to this for available EEPROM
+#define EECONFIG_SIZE 34
+
 #ifndef __EEPROM_H
 #define __EEPROM_H
 
@@ -40,7 +49,7 @@
 #ifndef EEPROM_PAGE_SIZE
 #    if defined(MCU_SN32F240B)
 #        define FEE_PAGE_SIZE       0x40     // Page size = 64 bytes
-#        define FEE_DENSITY_PAGES   1024     // How many pages are used
+#        define FEE_DENSITY_PAGES   16     // How many pages are used
 #    else
 #        error "No MCU type specified. Add something like -DMCU_SN32F240B to your compiler arguments (probably in a Makefile)."
 #    endif
@@ -48,21 +57,28 @@
 
 #ifndef EEPROM_START_ADDRESS
 #    if defined(MCU_SN32F240B)
-#        define FEE_MCU_FLASH_SIZE 64  // Size in Kb
+#        define FEE_MCU_FLASH_SIZE 1  // Size in Kb
 #    else
 #        error "No MCU type specified. Add something like -DMCU_SN32F240B to your compiler arguments (probably in a Makefile)."
 #    endif
 #endif
 
 // Choose location for the first EEPROM Page address on the top of flash
-#define FEE_PAGE_BASE_ADDRESS ((uint32_t)(0x0000FFC0 + FEE_MCU_FLASH_SIZE * 1024 - FEE_DENSITY_PAGES * FEE_PAGE_SIZE))
-#define FEE_DENSITY_BYTES ((FEE_PAGE_SIZE / 2) * FEE_DENSITY_PAGES - 1)
-#define FEE_LAST_PAGE_ADDRESS (FEE_PAGE_BASE_ADDRESS + (FEE_PAGE_SIZE * FEE_DENSITY_PAGES))
+
+#define FEE_LAST_PAGE_ADDRESS (0x0000FF80)
+#define FEE_PAGE_BASE_ADDRESS (FEE_LAST_PAGE_ADDRESS - (FEE_PAGE_SIZE * FEE_DENSITY_PAGES))
+#define FEE_DENSITY_BYTES ((FEE_PAGE_SIZE * FEE_DENSITY_PAGES) -1)
+#define FEE_ADDR_OFFSET(Address) (Address * 2)
 #define FEE_EMPTY_WORD ((uint16_t)0xFFFF)
-#define FEE_ADDR_OFFSET(Address) (Address * 2)  // 1Byte per Word will be saved to preserve Flash
+
+//#define FEE_PAGE_BASE_ADDRESS ((uint32_t)(0x0000FFC0 + FEE_MCU_FLASH_SIZE * 1024 - FEE_DENSITY_PAGES * FEE_PAGE_SIZE))
+//#define FEE_DENSITY_BYTES ((FEE_PAGE_SIZE / 2) * FEE_DENSITY_PAGES - 1)
+//#define FEE_LAST_PAGE_ADDRESS (FEE_PAGE_BASE_ADDRESS + (FEE_PAGE_SIZE * FEE_DENSITY_PAGES))
+//#define FEE_EMPTY_WORD ((uint16_t)0xFFFF)
+//#define FEE_ADDR_OFFSET(Address) (Address * 2)  // 1Byte per Word will be saved to preserve Flash
 
 // Use this function to initialize the functionality
-uint16_t EEPROM_Init(void);
+uint16_t eeprom_initialize(void);
 void     EEPROM_Erase(void);
 uint16_t EEPROM_WriteDataByte(uint16_t Address, uint8_t DataByte);
 uint8_t  EEPROM_ReadDataByte(uint16_t Address);
