@@ -17,7 +17,7 @@
 #   include "eeprom_sn32.h"
 #   define EEPROM_SIZE 1024  // based off eeconfig's current usage, aligned to 4-byte sizes, to deal with LTO
 #endif
-__attribute__((aligned(4))) static uint8_t buffer[EEPROM_SIZE];
+//__attribute__((aligned(4))) static uint8_t buffer[EEPROM_SIZE];
 
 
 uint8_t DataBuf[FEE_PAGE_SIZE];
@@ -34,46 +34,53 @@ void EEPROM_Erase(void) {
 
 uint16_t EEPROM_WriteDataByte(uint16_t Address, uint8_t DataByte) {
     uint32_t FlashStatus = FLASH_OKAY;
-
     uint32_t page;
     int      i;
 
     // exit if desired address is above the limit (e.G. under 2048 Bytes for 4 pages)
-    if (Address > FEE_DENSITY_BYTES) {
+    if (Address > FEE_LAST_PAGE_ADDRESS) {
+        print("failed address check...\n");
         return 0;
     }
 
     // calculate which page is affected (Pagenum1/Pagenum2...PagenumN)
     page = FEE_ADDR_OFFSET(Address) / FEE_PAGE_SIZE;
+    //uprintf("page : %d ", page);
 
     // if current data is 0xFF, the byte is empty, just overwrite with the new one
     if ((*(__IO uint16_t *)(FEE_PAGE_BASE_ADDRESS + FEE_ADDR_OFFSET(Address))) == FEE_EMPTY_WORD) {
+        print("Empty data proceeding with flash...\n");
         FlashStatus = FLASH_ProgramHalfWord(FEE_PAGE_BASE_ADDRESS + FEE_ADDR_OFFSET(Address), (uint8_t *)(0x00FF & DataByte));
         // FlashStatus = FLASH_ProgramPage(FEE_PAGE_BASE_ADDRESS + FEE_ADDR_OFFSET(Address), 2, (uint16_t)(0x00FF & DataByte));
 
     } else {
         // Copy Page to a buffer
-        memcpy(DataBuf, (uint8_t *)FEE_PAGE_BASE_ADDRESS + (page * FEE_PAGE_SIZE), FEE_PAGE_SIZE);  // !!! Calculate base address for the desired page
-
-        // check if new data is differ to current data, return if not, proceed if yes
-        if (DataByte == *(__IO uint8_t *)(FEE_PAGE_BASE_ADDRESS + FEE_ADDR_OFFSET(Address))) {
-            return 0;
-        }
-
-        // manipulate desired data byte in temp data array if new byte is differ to the current
-        DataBuf[FEE_ADDR_OFFSET(Address) % FEE_PAGE_SIZE] = DataByte;
-
-        // Erase Page
-        FlashStatus = FLASH_EraseSector(FEE_PAGE_BASE_ADDRESS + (page * FEE_PAGE_SIZE));
-
-        // __asm__ volatile ("bkpt");
-
-        // Write new data (whole page) to flash if data has been changed
-        for (i = 0; i < (FEE_PAGE_SIZE / 2); i++) {
-            if ((__IO uint16_t)(0xFF00 | DataBuf[FEE_ADDR_OFFSET(i)]) != 0xFFFF) {
-                FlashStatus = FLASH_ProgramHalfWord((FEE_PAGE_BASE_ADDRESS + (page * FEE_PAGE_SIZE)) + (i * 2), (uint8_t *)(0xFF00 | DataBuf[FEE_ADDR_OFFSET(i)]));
-                // FlashStatus = FLASH_ProgramPage((FEE_PAGE_BASE_ADDRESS + (page * FEE_PAGE_SIZE)) + (i * 2), 2, (uint16_t)(0xFF00 | DataBuf[FEE_ADDR_OFFSET(i)]));
-            }
+        uprintf("page : %d ", page);
+        print("not empty coping to buffer for flashing...");
+        uprintf("%d", (uint8_t *)FEE_PAGE_BASE_ADDRESS + (page * FEE_PAGE_SIZE));
+        memcpy(DataBuf, (uint8_t *)(FEE_PAGE_BASE_ADDRESS + (page * FEE_PAGE_SIZE)), FEE_PAGE_SIZE);  // !!! Calculate base address for the desired page
+    }
+    // check if new data is differ to current data, return if not, proceed
+    if (DataByte == (*(__IO uint8_t *)(FEE_PAGE_BASE_ADDRESS + FEE_ADDR_OFFSET(Address)))) { 
+    
+    //(DataByte == (*(__IO uint8_t *)(FEE_PAGE_BASE_ADDRESS + FEE_ADDR_OFFSET(Address)))) {
+        print("eeporm not written...\n");
+        return 0;
+    }
+        
+    // manipulate desired data byte in temp data array if new byte is differ to the current
+    DataBuf[FEE_ADDR_OFFSET(Address) % FEE_PAGE_SIZE] = DataByte;
+    
+    
+    // Erase Page
+    FlashStatus = FLASH_EraseSector(FEE_PAGE_BASE_ADDRESS + (page * FEE_PAGE_SIZE));
+    
+    for (i = 0; i < (FEE_PAGE_SIZE / 2); i++) {
+        if ((__IO uint16_t)(FEE_PAGE_BASE_ADDRESS | DataBuf[FEE_ADDR_OFFSET(i)]) != FEE_LAST_PAGE_ADDRESS) {
+            print("flashing the buffer...");
+            //uprintf("Important Testing stuff : %d \n", (FEE_PAGE_BASE_ADDRESS + (page * FEE_PAGE_SIZE)) + (i * 2));
+            //uprintf("Important Testing data : %d \n", DataBuf[FEE_ADDR_OFFSET(i) % FEE_PAGE_SIZE]);
+            FlashStatus = FLASH_ProgramHalfWord((FEE_PAGE_BASE_ADDRESS + (page * FEE_PAGE_SIZE)) + (i * 2), (uint8_t *)(0xFF00 | DataBuf[FEE_ADDR_OFFSET(i) % FEE_PAGE_SIZE]));
         }
     }
     return FlashStatus;
@@ -89,28 +96,28 @@ uint8_t eeprom_read_byte(const uint8_t *addr) {
 }
 
 void eeprom_write_byte(uint8_t *addr, uint8_t value) {
-    print("eeporm writing byte...\n");
+    //print("eeporm writing byte(maybe)...\n");
     uint32_t offset = (uint32_t)addr;
-    buffer[offset]  = value;
+    DataBuf[offset]  = value;
+    EEPROM_WriteDataByte(offset, value);
     //uprintf("Addr: %d ", offset);
     //uprintf("Value: %d ", buffer[offset]);
-    EEPROM_WriteDataByte((FEE_PAGE_BASE_ADDRESS + FEE_ADDR_OFFSET(offset)), buffer[offset]);
 }
 
 uint16_t eeprom_read_word(const uint16_t *addr) {
-    print("eeporm writing word...\n");
+    //print("eeporm writing word...\n");
     const uint8_t *p = (const uint8_t *)addr;
     return eeprom_read_byte(p) | (eeprom_read_byte(p + 1) << 8);
 }
 
 uint32_t eeprom_read_dword(const uint32_t *addr) {
-    print("eeporm writing dword...\n");
+    //print("eeporm writing dword...\n");
     const uint8_t *p = (const uint8_t *)addr;
     return eeprom_read_byte(p) | (eeprom_read_byte(p + 1) << 8) | (eeprom_read_byte(p + 2) << 16) | (eeprom_read_byte(p + 3) << 24);
 }
 
 void eeprom_read_block(void *buf, const void *addr, size_t len) {
-    print("eeporm reading block...\n");
+    //print("eeporm reading block...\n");
     const uint8_t *p    = (const uint8_t *)addr;
     uint8_t *      dest = (uint8_t *)buf;
     while (len--) {
@@ -119,14 +126,14 @@ void eeprom_read_block(void *buf, const void *addr, size_t len) {
 }
 
 void eeprom_write_word(uint16_t *addr, uint16_t value) {
-    print("eeporm writing word...\n");
+    //print("eeporm writing word...\n");
     uint8_t *p = (uint8_t *)addr;
     eeprom_write_byte(p++, value);
     eeprom_write_byte(p, value >> 8);
 }
 
 void eeprom_write_dword(uint32_t *addr, uint32_t value) {
-    print("eeporm writing dword...\n");
+    //print("eeporm writing dword...\n");
     uint8_t *p = (uint8_t *)addr;
     eeprom_write_byte(p++, value);
     eeprom_write_byte(p++, value >> 8);
@@ -135,7 +142,7 @@ void eeprom_write_dword(uint32_t *addr, uint32_t value) {
 }
 
 void eeprom_write_block(const void *buf, void *addr, size_t len) {
-    print("eeporm writing block...\n");
+    //print("eeporm writing block...\n");
     uint8_t *      p   = (uint8_t *)addr;
     const uint8_t *src = (const uint8_t *)buf;
     while (len--) {
@@ -149,14 +156,14 @@ void eeprom_write_block(const void *buf, void *addr, size_t len) {
 void eeprom_update_byte(uint8_t *addr, uint8_t value) { eeprom_write_byte(addr, value); }
 
 void eeprom_update_word(uint16_t *addr, uint16_t value) {
-    print("eeporm updating word...\n");
+    //print("eeporm updating word...\n");
     uint8_t *p = (uint8_t *)addr;
     eeprom_write_byte(p++, value);
     eeprom_write_byte(p, value >> 8);
 }
 
 void eeprom_update_dword(uint32_t *addr, uint32_t value) {
-    print("eeporm updating dword...\n");
+    //print("eeporm updating dword...\n");
     uint8_t *p = (uint8_t *)addr;
     eeprom_write_byte(p++, value);
     eeprom_write_byte(p++, value >> 8);
@@ -165,7 +172,7 @@ void eeprom_update_dword(uint32_t *addr, uint32_t value) {
 }
 
 void eeprom_update_block(const void *buf, void *addr, size_t len) {
-    print("eeporm updating block...\n");
+    //print("eeporm updating block...\n");
     uint8_t *      p   = (uint8_t *)addr;
     const uint8_t *src = (const uint8_t *)buf;
     while (len--) {
