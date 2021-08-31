@@ -22,14 +22,14 @@
 // Flash Status Register definitions
 #define FLASH_OKAY									0x00000000
 #define FLASH_BUSY									0x00000001
-#define FLASH_PGERR									0x00000002
+#define FLASH_PGERR									0x00000004
 #define FLASH_TIMEOUT							    0x00000003
 
 
 /*_____ M A C R O S ________________________________________________________*/
 
 //Flash Low Power Mode
-#define	__FLASH_LPM_DISABLE					SN_FLASH->LPCTRL = 0x5AFA0000
+#define	__FLASH_LPM_DISABLE				SN_FLASH->LPCTRL = 0x5AFA0000
 #define	__FLASH_LPM_SLOW_MODE				SN_FLASH->LPCTRL = 0x5AFA0002
 
 //Flash Status
@@ -39,6 +39,7 @@
 /*_____ D E C L A R A T I O N S ____________________________________________*/
 extern	uint32_t wFLASH_PGRAM[2];
 
+void FLASH_Unlock(void);
 uint32_t FLASH_EraseSector(uint32_t);
 uint32_t FLASH_ProgramHalfWord(uint32_t, uint8_t *);
 uint32_t FLASH_ProgramPage (uint32_t, uint32_t, uint8_t *);

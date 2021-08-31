@@ -49,7 +49,7 @@
 #ifndef EEPROM_PAGE_SIZE
 #    if defined(MCU_SN32F240B)
 #        define FEE_PAGE_SIZE       0x40     // Page size = 64 bytes
-#        define FEE_DENSITY_PAGES   16     // How many pages are used
+#        define FEE_DENSITY_PAGES   1024     // How many pages are used
 #    else
 #        error "No MCU type specified. Add something like -DMCU_SN32F240B to your compiler arguments (probably in a Makefile)."
 #    endif
@@ -78,7 +78,7 @@
 //#define FEE_ADDR_OFFSET(Address) (Address * 2)  // 1Byte per Word will be saved to preserve Flash
 
 // Use this function to initialize the functionality
-uint16_t eeprom_initialize(void);
+uint16_t EEPROM_Init(void);
 void     EEPROM_Erase(void);
 uint16_t EEPROM_WriteDataByte(uint16_t Address, uint8_t DataByte);
 uint8_t  EEPROM_ReadDataByte(uint16_t Address);
