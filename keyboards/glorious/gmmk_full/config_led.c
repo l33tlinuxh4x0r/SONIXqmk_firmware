@@ -3,7 +3,8 @@
 #include "config_led.h"
 #include "rgb_matrix.h"
 
-led_config_t g_led_config = { 
+/* const to save lots of RAM, have to change the qmk source code */
+const led_config_t g_led_config = { 
 {
 /*0*/   {   0,      1,      2,      3,      4,      5,      6,      7,      8,      9,     10,     11,       12,     NO_LED,      NO_LED,     NO_LED},
 /*1*/   {  16,     17,     18,     19,     20,     21,     22,     23,     24,     25,     26,     27,       28,     33,          34,         35},
