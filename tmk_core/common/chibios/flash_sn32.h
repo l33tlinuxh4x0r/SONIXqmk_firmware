@@ -39,7 +39,6 @@
 /*_____ D E C L A R A T I O N S ____________________________________________*/
 extern	uint32_t wFLASH_PGRAM[2];
 
-void FLASH_Unlock(void);
 uint32_t FLASH_EraseSector(uint32_t);
 uint32_t FLASH_ProgramHalfWord(uint32_t, uint8_t *);
 uint32_t FLASH_ProgramPage (uint32_t, uint32_t, uint8_t *);
