@@ -54,6 +54,6 @@
 
 #include "config_led.h"
 
-/* Enable reactive RGB annimations */
+/* Enable reactive RGB animations */
 #define RGB_MATRIX_FRAMEBUFFER_EFFECTS
 #define RGB_MATRIX_KEYPRESSES
