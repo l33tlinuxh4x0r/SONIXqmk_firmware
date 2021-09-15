@@ -1,25 +1,26 @@
 # project specific files
-SRC = ../../../drivers/sn32/matrix_sn32f248b.c
+SRC = matrix.c
+SRC += led_matrix.c
 SRC += config_led.c
 
 ## chip/board settings
 # - the next two should match the directories in
 #   <chibios>/os/hal/ports/$(MCU_FAMILY)/$(MCU_SERIES)
 MCU_FAMILY = SN32
-MCU_SERIES = SN32F240B
+MCU_SERIES = SN32F240
 
 # Linker script to use
 # - it should exist either in <chibios>/os/common/ports/ARMCMx/compilers/GCC/ld/
 #   or <this_dir>/ld/
-MCU_LDSCRIPT = SN32F240B
+MCU_LDSCRIPT = SN32F240
 
 # Startup code to use
 #  - it should exist in <chibios>/os/common/startup/ARMCMx/compilers/GCC/mk/
-MCU_STARTUP = sn32f24xb
+MCU_STARTUP = sn32f24x
 
 # Board: it should exist either in <chibios>/os/hal/boards/
 #  or <this_dir>/boards
-BOARD = SN_SN32F240B
+BOARD = SN_SN32F240
 
 # Cortex version
 MCU  = cortex-m0
@@ -49,16 +50,15 @@ EXTRAKEY_ENABLE = yes   # Audio control and System control
 CONSOLE_ENABLE = no     # Console for debug
 COMMAND_ENABLE = no     # Commands for debug and configuration
 SLEEP_LED_ENABLE = no   # Breathing sleep LED during USB suspend
-NKRO_ENABLE = yes       # USB Nkey Rollover
+NKRO_ENABLE = no        # USB Nkey Rollover
 AUDIO_ENABLE = no
 RGBLIGHT_ENABLE = no
 SERIAL_LINK_ENABLE = no
 WAIT_FOR_USB = no
 CUSTOM_MATRIX = yes
-KEYBOARD_SHARED_EP = yes
 
 # Custom RGB matrix handling
 RGB_MATRIX_ENABLE = yes
-RGB_MATRIX_DRIVER = SN32F248B
+RGB_MATRIX_DRIVER = custom
 
 OPENRGB_ENABLE = yes
