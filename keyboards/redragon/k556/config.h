@@ -53,3 +53,7 @@
 #define LED_PIN_ON_STATE    0
 
 #include "config_led.h"
+
+/* Enable reactive RGB annimations */
+#define RGB_MATRIX_FRAMEBUFFER_EFFECTS
+#define RGB_MATRIX_KEYPRESSES
