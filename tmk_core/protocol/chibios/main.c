@@ -161,7 +161,7 @@ int main(void) {
 #endif
 
 #ifdef SN32_EEPROM_ENABLE
-    // EEPROM_Init();
+    EEPROM_Init();
 #endif
 
     // TESTING
@@ -243,9 +243,7 @@ int main(void) {
                 /* Remote wakeup */
                 if (suspend_wakeup_condition()) {
                     usbWakeupHost(&USB_DRIVER);
-#if !defined(SN32F24xx)
                     restart_usb_driver(&USB_DRIVER);
-#endif
                 }
             }
             /* Woken up */
