@@ -60,6 +60,3 @@ KEYBOARD_SHARED_EP = yes
 # Custom RGB matrix handling
 RGB_MATRIX_ENABLE = yes
 RGB_MATRIX_DRIVER = SN32F248B
-
-/* Enable RGB sleep */
-#define RGB_DISABLE_WHEN_USB_SUSPENDED true
