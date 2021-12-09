@@ -290,19 +290,13 @@ void rgb_callback(PWMDriver *pwmp) {
         if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
             switch(current_row % 3) {
             case 0:
-                if(led_state[chan_ofst].r >0){
-                    pwmEnableChannelI(pwmp,i,led_state[chan_ofst].r);
-                }
+                pwmEnableChannelI(pwmp,i,led_state[chan_ofst].r);
                 break;
             case 1:
-                if(led_state[chan_ofst].b >0){
-                    pwmEnableChannelI(pwmp,i,led_state[chan_ofst].b);
-                }
+                pwmEnableChannelI(pwmp,i,led_state[chan_ofst].b);
                 break;
             case 2:
-                if(led_state[chan_ofst].g >0){
-                    pwmEnableChannelI(pwmp,i,led_state[chan_ofst].g);
-                }
+                pwmEnableChannelI(pwmp,i,led_state[chan_ofst].g);
                 break;
             default:
                 ;
