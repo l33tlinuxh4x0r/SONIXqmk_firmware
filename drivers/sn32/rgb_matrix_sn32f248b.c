@@ -302,7 +302,7 @@ void rgb_callback(PWMDriver *pwmp) {
             pwmEnableChannelI(pwmp,mr_offset[i],state_g);
             break;
         default:
-            pwmDisableChannelI(pwmp,mr_offset[i]);
+            ;
         }
         chSysUnlockFromISR();
     }
