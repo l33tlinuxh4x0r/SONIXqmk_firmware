@@ -267,7 +267,7 @@ void shared_matrix_rgb_disable(void) {
         pwmDisableChannel(&PWMD1,i);
         chSysUnlockFromISR();
     }
-    pwmcfg.callback = NULL;
+    //pwmcfg.callback = NULL;
     pwmDisablePeriodicNotification(&PWMD1);
 }
 
@@ -287,46 +287,30 @@ void rgb_callback(PWMDriver *pwmp) {
     uint16_t row_ofst = row_ofsts[row_idx];
     
     for(uint8_t i=0; i<24; i++){
+        chSysLockFromISR();
         uint8_t state_r = led_state[row_ofst + mr_offset[i] ].r;
         uint8_t state_b = led_state[row_ofst + mr_offset[i] ].b;
         uint8_t state_g = led_state[row_ofst + mr_offset[i] ].g;
         switch(current_row % 3) {
         case 0:
-            if(state_r >0) {
-                chSysLockFromISR();
-                pwmEnableChannelI(pwmp,i,state_r);
-                chSysUnlockFromISR();
-                break;
-            }
-            goto killit;
+            pwmEnableChannelI(pwmp,i,state_r);
+            break;
         case 1:
-            if(state_b >0) {
-                chSysLockFromISR();
-                pwmEnableChannelI(pwmp,i,state_b);
-                chSysUnlockFromISR();
-                break;
-            }
-            goto killit;
+            pwmEnableChannelI(pwmp,i,state_b);
+            break;
         case 2:
-            if(state_g >0) {
-                chSysLockFromISR();
-                pwmEnableChannelI(pwmp,i,state_g);
-                chSysUnlockFromISR();
-                break;
-            }
-            goto killit;
+            pwmEnableChannelI(pwmp,i,state_g);
+            break;
         default:
-        killit:
-            chSysLockFromISR();
             pwmDisableChannelI(pwmp,i);
-            chSysUnlockFromISR();
         }
+        chSysUnlockFromISR();
     }
-    writePinHigh(led_row_pins[current_row]);
     // Advance the timer to just before the wrap-around, that will start a new PWM cycle
     pwm_lld_change_counter(pwmp, 0xFFFE);
     // Enable the interrupt
-    shared_matrix_rgb_enable();
+    pwmEnablePeriodicNotification(pwmp);
+    writePinHigh(led_row_pins[current_row]);
 }
 
 void SN32F24XX_init(void) {
