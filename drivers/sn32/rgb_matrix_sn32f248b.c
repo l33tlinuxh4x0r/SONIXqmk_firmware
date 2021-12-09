@@ -314,9 +314,9 @@ void rgb_callback(PWMDriver *pwmp) {
     }
     // Advance the timer to just before the wrap-around, that will start a new PWM cycle
     pwm_lld_change_counter(pwmp, 0xFFFE);
+    writePinHigh(led_row_pins[current_row]);
     // Enable the interrupt
     pwmEnablePeriodicNotification(pwmp);
-    writePinHigh(led_row_pins[current_row]);
 }
 
 void SN32F24XX_init(void) {
