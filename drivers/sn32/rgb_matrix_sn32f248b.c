@@ -44,7 +44,7 @@ static const pin_t led_col_pins[LED_MATRIX_COLS] = LED_MATRIX_COL_PINS;
 
 /* PWM configuration structure. We use timer CT16B1 with 24 channels. */
 static PWMConfig pwmcfg = {
-    60000,         /* PWM clock frequency. */
+    675250,        /* PWM clock frequency. */
     256,           /* PWM period (in ticks) 1S (1/10kHz=0.1mS 0.1ms*10000 ticks=1S) */
     NULL,          /* RGB Callback */
     {              /* Default all channels to disabled - Channels will be configured durring init */
@@ -313,7 +313,7 @@ void rgb_callback(PWMDriver *pwmp) {
         chSysUnlockFromISR();
     }
     // Advance the timer to just before the wrap-around, that will start a new PWM cycle
-    pwm_lld_change_counter(pwmp, 0xFFFE);
+    pwm_lld_change_counter(pwmp, 0xFFFC);
     writePinHigh(led_row_pins[current_row]);
     // Enable the interrupt
     pwmEnablePeriodicNotification(pwmp);
