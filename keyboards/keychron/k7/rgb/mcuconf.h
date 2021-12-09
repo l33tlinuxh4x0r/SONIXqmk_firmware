@@ -46,7 +46,7 @@
  */
 #define HAL_USE_PWM TRUE
 #define SN32_PWM_USE_CT16B1 TRUE
-#define SN32_PWM_USE_ONESHOT TRUE
+#define SN32_PWM_NO_RESET TRUE
 
 /*
  * SN driver system settings.
