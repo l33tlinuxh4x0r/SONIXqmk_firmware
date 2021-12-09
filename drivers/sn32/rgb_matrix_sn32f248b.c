@@ -285,9 +285,8 @@ void rgb_callback(PWMDriver *pwmp) {
 
     uint8_t row_idx = ( current_row / 3 );
     uint16_t row_ofst = row_ofsts[row_idx];
-    
+    chSysLockFromISR();
     for(uint8_t i=0; i<24; i++){
-        chSysLockFromISR();
         uint16_t chan_ofst = (row_ofst + mr_offset[i]);
         if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
             switch(current_row % 3) {
@@ -310,8 +309,8 @@ void rgb_callback(PWMDriver *pwmp) {
                 ;
             }
         }
-        chSysUnlockFromISR();
     }
+    chSysUnlockFromISR();
     // Advance the timer to just before the wrap-around, that will start a new PWM cycle
     pwm_lld_change_counter(pwmp, 0xFFFC);
     writePinHigh(led_row_pins[current_row]);
