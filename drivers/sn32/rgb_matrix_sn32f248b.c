@@ -262,7 +262,7 @@ void shared_matrix_rgb_enable(void) {
 
 void shared_matrix_rgb_disable(void) {
     // Disable PWM outputs on column pins
-    for(uint8_t i=0; i<LED_MATRIX_COLS; i++){
+    for(uint8_t i=0;i<24;i++){
         chSysLockFromISR();
         pwmDisableChannel(&PWMD1,i);
         chSysUnlockFromISR();
@@ -286,7 +286,7 @@ void rgb_callback(PWMDriver *pwmp) {
     uint8_t row_idx = ( current_row / 3 );
     uint16_t row_ofst = row_ofsts[row_idx];
     
-    for(uint8_t i=0; i<LED_MATRIX_COLS; i++){
+    for(uint8_t i=0; i<24; i++){
         chSysLockFromISR();
         uint16_t chan_ofst = (row_ofst + mr_offset[i]);
         switch(current_row % 3) {
