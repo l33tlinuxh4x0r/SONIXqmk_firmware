@@ -291,13 +291,13 @@ void rgb_callback(PWMDriver *pwmp) {
         uint16_t chan_ofst = (row_ofst + mr_offset[i]);
         switch(current_row % 3) {
         case 0:
-            pwmEnableChannelI(pwmp,mr_offset[i],led_state[chan_ofst].r);
+            pwmEnableChannelI(pwmp,i,led_state[chan_ofst].r);
             break;
         case 1:
-            pwmEnableChannelI(pwmp,mr_offset[i],led_state[chan_ofst].b);
+            pwmEnableChannelI(pwmp,i,led_state[chan_ofst].b);
             break;
         case 2:
-            pwmEnableChannelI(pwmp,mr_offset[i],led_state[chan_ofst].g);
+            pwmEnableChannelI(pwmp,i,led_state[chan_ofst].g);
             break;
         default:
             ;
