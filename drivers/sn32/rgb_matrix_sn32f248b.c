@@ -289,18 +289,15 @@ void rgb_callback(PWMDriver *pwmp) {
     for(uint8_t i=0; i<24; i++){
         chSysLockFromISR();
         uint16_t chan_ofst = (row_ofst + mr_offset[i]);
-        uint8_t state_r = led_state[chan_ofst].r;
-        uint8_t state_b = led_state[chan_ofst].b;
-        uint8_t state_g = led_state[chan_ofst].g;
         switch(current_row % 3) {
         case 0:
-            pwmEnableChannelI(pwmp,chan_ofst,state_r);
+            pwmEnableChannelI(pwmp,mr_offset[i],led_state[chan_ofst].r);
             break;
         case 1:
-            pwmEnableChannelI(pwmp,chan_ofst,state_b);
+            pwmEnableChannelI(pwmp,mr_offset[i],led_state[chan_ofst].b);
             break;
         case 2:
-            pwmEnableChannelI(pwmp,chan_ofst,state_g);
+            pwmEnableChannelI(pwmp,mr_offset[i],led_state[chan_ofst].g);
             break;
         default:
             ;
