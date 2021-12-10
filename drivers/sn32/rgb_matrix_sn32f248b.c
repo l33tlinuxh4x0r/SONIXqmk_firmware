@@ -284,19 +284,18 @@ void rgb_callback(PWMDriver *pwmp) {
     matrix_scan_keys(raw_matrix,current_row);
 
     uint8_t row_idx = ( current_row / 3 );
-    uint16_t row_ofst = row_ofsts[row_idx];
     for(uint8_t i=0; i<24; i++){
-        uint16_t chan_ofst = (row_ofst + mr_offset[i]);
+        uint8_t chan_ofst = g_led_config.matrix_co[row_idx][i];
         if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
             switch(current_row % 3) {
             case 0:
-                pwmEnableChannelI(pwmp,i,led_state[chan_ofst].r);
+                pwmEnableChannelI(pwmp,mr_offset[i],led_state[chan_ofst].r);
                 break;
             case 1:
-                pwmEnableChannelI(pwmp,i,led_state[chan_ofst].b);
+                pwmEnableChannelI(pwmp,mr_offset[i],led_state[chan_ofst].b);
                 break;
             case 2:
-                pwmEnableChannelI(pwmp,i,led_state[chan_ofst].g);
+                pwmEnableChannelI(pwmp,mr_offset[i],led_state[chan_ofst].g);
                 break;
             default:
                 ;
@@ -339,7 +338,7 @@ static void flush(void) {}
 void SN32F24XX_set_color(int index, uint8_t r, uint8_t g, uint8_t b) {
     led_state[index].r = r;
     led_state[index].g = g;
-    led_state[index].b = b;
+    led_state[corrected_index].b = b;
 }
 
 void SN32F24XX_set_color_all(uint8_t r, uint8_t g, uint8_t b) {
