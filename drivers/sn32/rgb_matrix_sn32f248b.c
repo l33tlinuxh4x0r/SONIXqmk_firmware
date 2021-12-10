@@ -286,7 +286,7 @@ void rgb_callback(PWMDriver *pwmp) {
         if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
             uint8_t led_index = g_led_config.matrix_co[row_idx][mr_offset[i]];
             if (led_index != NO_LED) {
-                switch(current_row % 3) {
+                switch(row_idx % 3) {
                 case 0:
                     pwmEnableChannelI(pwmp,i,led_state[led_index].r);
                     break;
