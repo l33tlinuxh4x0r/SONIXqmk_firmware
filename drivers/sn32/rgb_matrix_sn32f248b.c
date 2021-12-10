@@ -278,15 +278,15 @@ void rgb_callback(PWMDriver *pwmp) {
 
     // Turn the next row on
     current_row = (current_row + 1) % LED_MATRIX_ROWS_HW;
-
-    matrix_scan_keys(raw_matrix,current_row);
-
     uint8_t row_idx = ( current_row / 3 );
+
+    matrix_scan_keys(raw_matrix,row_idx);
+
     for(uint8_t i=0; i<24; i++){
         if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
             uint8_t led_index = g_led_config.matrix_co[row_idx][mr_offset[i]];
             if (led_index != NO_LED) {
-                switch(row_idx % 3) {
+                switch(current_row % 3) {
                 case 0:
                     pwmEnableChannelI(pwmp,i,led_state[led_index].r);
                     break;
