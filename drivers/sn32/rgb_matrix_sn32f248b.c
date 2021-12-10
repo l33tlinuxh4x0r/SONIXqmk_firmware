@@ -33,11 +33,9 @@
     (B)     (E)
     GPIO    GND
 */
-static uint16_t row_ofsts[LED_MATRIX_ROWS];
 static uint8_t mr_offset[24] = {0};
 static uint8_t current_row = 0;
 LED_TYPE led_state[LED_MATRIX_ROWS * LED_MATRIX_COLS];
-uint8_t led_pos[DRIVER_LED_TOTAL];
 extern matrix_row_t raw_matrix[MATRIX_ROWS]; //raw values
 static const pin_t led_row_pins[LED_MATRIX_ROWS_HW] = LED_MATRIX_ROW_PINS;
 static const pin_t led_col_pins[LED_MATRIX_COLS] = LED_MATRIX_COL_PINS;
@@ -285,17 +283,16 @@ void rgb_callback(PWMDriver *pwmp) {
 
     uint8_t row_idx = ( current_row / 3 );
     for(uint8_t i=0; i<24; i++){
-        uint8_t chan_ofst = g_led_config.matrix_co[row_idx][i];
         if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
             switch(current_row % 3) {
             case 0:
-                pwmEnableChannelI(pwmp,mr_offset[i],led_state[chan_ofst].r);
+                pwmEnableChannelI(pwmp,mr_offset[i],led_state[g_led_config.matrix_co[row_idx][i]].r);
                 break;
             case 1:
-                pwmEnableChannelI(pwmp,mr_offset[i],led_state[chan_ofst].b);
+                pwmEnableChannelI(pwmp,mr_offset[i],led_state[g_led_config.matrix_co[row_idx][i]].b);
                 break;
             case 2:
-                pwmEnableChannelI(pwmp,mr_offset[i],led_state[chan_ofst].g);
+                pwmEnableChannelI(pwmp,mr_offset[i],led_state[g_led_config.matrix_co[row_idx][i]].g);
                 break;
             default:
                 ;
@@ -311,23 +308,10 @@ void rgb_callback(PWMDriver *pwmp) {
 }
 
 void SN32F24XX_init(void) {
-    unsigned int i = 0;
-    for (unsigned int y = 0; y < LED_MATRIX_ROWS; y++) {
-        for (unsigned int x = 0; x < LED_MATRIX_COLS; x++) {
-            if (g_led_config.matrix_co[y][x] != NO_LED) {
-                led_pos[g_led_config.matrix_co[y][x]] = i;
-                i++;
-            }
-        }
-    }
     for (uint8_t x = 0; x < LED_MATRIX_ROWS_HW; x++) {
         setPinOutput(led_row_pins[x]);
         writePinLow(led_row_pins[x]);
     }
-    for (uint8_t i = 0; i < LED_MATRIX_ROWS; i++) {
-        row_ofsts[i] = i * LED_MATRIX_COLS;
-    }
-
     rgb_ch_ctrl(&pwmcfg);
     pwmStart(&PWMD1, &pwmcfg);
     shared_matrix_rgb_enable();
