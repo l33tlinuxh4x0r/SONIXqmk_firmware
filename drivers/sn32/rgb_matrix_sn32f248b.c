@@ -284,18 +284,21 @@ void rgb_callback(PWMDriver *pwmp) {
     uint8_t row_idx = ( current_row / 3 );
     for(uint8_t i=0; i<24; i++){
         if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
-            switch(current_row % 3) {
-            case 0:
-                pwmEnableChannelI(pwmp,i,led_state[g_led_config.matrix_co[row_idx][mr_offset[i]]].r);
-                break;
-            case 1:
-                pwmEnableChannelI(pwmp,i,led_state[g_led_config.matrix_co[row_idx][mr_offset[i]]].b);
-                break;
-            case 2:
-                pwmEnableChannelI(pwmp,i,led_state[g_led_config.matrix_co[row_idx][mr_offset[i]]].g);
-                break;
-            default:
-                ;
+            uint8_t led_index = g_led_config.matrix_co[row_idx][mr_offset[i]];
+            if (led_index != NO_LED) {
+                switch(current_row % 3) {
+                case 0:
+                    pwmEnableChannelI(pwmp,i,led_state[led_index].r);
+                    break;
+                case 1:
+                    pwmEnableChannelI(pwmp,i,led_state[led_index].b);
+                    break;
+                case 2:
+                    pwmEnableChannelI(pwmp,i,led_state[led_index].g);
+                    break;
+                default:
+                    ;
+                }
             }
         }
     }
