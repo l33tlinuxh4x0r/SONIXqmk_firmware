@@ -317,8 +317,8 @@ void SN32F24XX_init(void) {
         for (unsigned int x = 0; x < LED_MATRIX_COLS; x++) {
             if (g_led_config.matrix_co[y][x] != NO_LED) {
                 led_pos[g_led_config.matrix_co[y][x]] = i;
+                i++;
             }
-            i++;
         }
     }
     for (uint8_t x = 0; x < LED_MATRIX_ROWS_HW; x++) {
