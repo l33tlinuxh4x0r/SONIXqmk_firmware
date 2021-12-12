@@ -270,7 +270,6 @@ void shared_matrix_rgb_disable(void) {
 }
 
 void rgb_callback(PWMDriver *pwmp) {
-    chSysLockFromISR();
     // Disable the interrupt
     shared_matrix_rgb_disable();
     // Turn the selected row off
@@ -282,7 +281,8 @@ void rgb_callback(PWMDriver *pwmp) {
     uint8_t row_idx = ( current_row / 3 );
 
     matrix_scan_keys(raw_matrix,row_idx);
-
+    
+    chSysLockFromISR();
     for(uint8_t i=0; i<24; i++){
         if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
             uint8_t led_index = g_led_config.matrix_co[row_idx][mr_offset[i]];
@@ -305,10 +305,10 @@ void rgb_callback(PWMDriver *pwmp) {
     }
     // Advance the timer to just before the wrap-around, that will start a new PWM cycle
     pwm_lld_change_counter(pwmp, 0xFFFC);
+    chSysUnlockFromISR();
     writePinHigh(led_row_pins[current_row]);
     // Enable the interrupt
     pwmEnablePeriodicNotification(pwmp);
-    chSysUnlockFromISR();
 }
 
 void SN32F24XX_init(void) {
