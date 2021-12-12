@@ -277,7 +277,8 @@ void rgb_callback(PWMDriver *pwmp) {
     writePinLow(led_row_pins[current_row]);
 
     // Turn the next row on
-    current_row = (current_row + 1) % LED_MATRIX_ROWS_HW;
+    current_row++;
+    if(current_row >= LED_MATRIX_ROWS_HW) current_row = 0;
     uint8_t row_idx = ( current_row / 3 );
 
     matrix_scan_keys(raw_matrix,row_idx);
