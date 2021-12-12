@@ -330,8 +330,9 @@ void SN32F24XX_set_color(int index, uint8_t r, uint8_t g, uint8_t b) {
 }
 
 void SN32F24XX_set_color_all(uint8_t r, uint8_t g, uint8_t b) {
-    for (int i=0; i<DRIVER_LED_TOTAL; i++)
+    for (int i = 0; i < sizeof(led_state) / sizeof(led_state[0]); i++) {
         SN32F24XX_set_color(i, r, g, b);
+    }
 }
 
 const rgb_matrix_driver_t rgb_matrix_driver = {
