@@ -261,9 +261,7 @@ void shared_matrix_rgb_enable(void) {
 void shared_matrix_rgb_disable(void) {
     // Disable PWM outputs on column pins
     for(uint8_t i=0;i<24;i++){
-        chSysLockFromISR();
         pwmDisableChannel(&PWMD1,i);
-        chSysUnlockFromISR();
     }
     //pwmcfg.callback = NULL;
     pwmDisablePeriodicNotification(&PWMD1);
@@ -286,20 +284,18 @@ void rgb_callback(PWMDriver *pwmp) {
     for(uint8_t i=0; i<24; i++){
         if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
             uint8_t led_index = g_led_config.matrix_co[row_idx][mr_offset[i]];
-            if (led_index != NO_LED) {
-                switch(current_row % 3) {
-                case 0:
-                    pwmEnableChannelI(pwmp,i,led_state[led_index].r);
-                    break;
-                case 1:
-                    pwmEnableChannelI(pwmp,i,led_state[led_index].b);
-                    break;
-                case 2:
-                    pwmEnableChannelI(pwmp,i,led_state[led_index].g);
-                    break;
-                default:
-                    ;
-                }
+            switch(current_row % 3) {
+            case 0:
+                pwmEnableChannelI(pwmp,i,led_state[led_index].r);
+                break;
+            case 1:
+                pwmEnableChannelI(pwmp,i,led_state[led_index].b);
+                break;
+            case 2:
+                pwmEnableChannelI(pwmp,i,led_state[led_index].g);
+                break;
+            default:
+                ;
             }
         }
     }
@@ -330,7 +326,7 @@ void SN32F24XX_set_color(int index, uint8_t r, uint8_t g, uint8_t b) {
 }
 
 void SN32F24XX_set_color_all(uint8_t r, uint8_t g, uint8_t b) {
-    for (int i = 0; i < sizeof(led_state) / sizeof(led_state[0]); i++) {
+    for (int i=0; i<DRIVER_LED_TOTAL; i++) {
         SN32F24XX_set_color(i, r, g, b);
     }
 }
