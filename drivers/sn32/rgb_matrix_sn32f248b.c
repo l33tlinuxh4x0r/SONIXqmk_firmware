@@ -262,7 +262,9 @@ void shared_matrix_rgb_enable(void) {
 void shared_matrix_rgb_disable(void) {
     // Disable PWM outputs on column pins
     for(uint8_t i=0;i<24;i++){
-        pwmDisableChannel(&PWMD1,i);
+        if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
+            pwmDisableChannel(&PWMD1,i);
+        }
     }
     //pwmcfg.callback = NULL;
     pwmDisablePeriodicNotification(&PWMD1);
