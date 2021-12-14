@@ -84,7 +84,11 @@ static void init_pins(void) {
     //  Unselect ROWs
     for (uint8_t x = 0; x < MATRIX_ROWS; x++) {
         setPinInputHigh(row_pins[x]);
-        writePinHigh(row_pins[x]);
+    }
+    // Unselect COLs
+    for (uint8_t x = 0; x < MATRIX_COLS; x++) {
+        setPinOutput(col_pins[x]);
+        writePinHigh(col_pins[x]);
     }
 #elif(DIODE_DIRECTION == COL2ROW)
     //  Unselect ROWs
@@ -92,15 +96,13 @@ static void init_pins(void) {
         setPinOutput(row_pins[x]);
         writePinHigh(row_pins[x]);
     }
+    // Unselect COLs
+    for (uint8_t x = 0; x < MATRIX_COLS; x++) {
+        setPinInputHigh(col_pins[x]);
+    }
 #else
 #error DIODE_DIRECTION must be one of COL2ROW or ROW2COL!
 #endif
-
-    // Unselect COLs
-    for (uint8_t x = 0; x < MATRIX_COLS; x++) {
-        setPinOutput(col_pins[x]);
-        writePinHigh(col_pins[x]);
-    }
 }
 
 void matrix_init(void) {
@@ -163,11 +165,7 @@ void matrix_scan_keys(matrix_row_t raw_matrix[], uint8_t current_row){
             }
         #elif(DIODE_DIRECTION == COL2ROW)
             if(current_row == 0)
-            {   // Set all column pins input high
-                for (uint8_t col_index = 0; col_index < MATRIX_COLS; col_index++) {
-                    setPinInputHigh(col_pins[col_index]);
-                }
-                // Read the key matrix
+            {   // Read the key matrix
                 for (uint8_t row_index = 0; row_index < MATRIX_ROWS; row_index++) {
                     // Enable the row
                     writePinLow(row_pins[row_index]);
