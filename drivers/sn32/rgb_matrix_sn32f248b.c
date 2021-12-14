@@ -35,7 +35,7 @@
 */
 static uint8_t mr_offset[24] = {0};
 static uint8_t current_row = 0;
-LED_TYPE led_state[LED_MATRIX_ROWS * LED_MATRIX_COLS];
+LED_TYPE led_state[DRIVER_LED_TOTAL];
 extern matrix_row_t raw_matrix[MATRIX_ROWS]; //raw values
 static const pin_t led_row_pins[LED_MATRIX_ROWS_HW] = LED_MATRIX_ROW_PINS;
 static const pin_t led_col_pins[LED_MATRIX_COLS] = LED_MATRIX_COL_PINS;
