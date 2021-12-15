@@ -139,7 +139,7 @@ uint8_t matrix_scan(void) {
     return matrix_changed;
 }
 
-void matrix_scan_keys(matrix_row_t raw_matrix[], uint8_t current_row){
+void matrix_scan_keys(matrix_row_t raw_matrix[]){
         #if(DIODE_DIRECTION == ROW2COL)
             // Read the key matrix
             for (uint8_t col_index = 0; col_index < MATRIX_COLS; col_index++) {

@@ -267,12 +267,32 @@ void shared_matrix_rgb_disable(void) {
         }
     }
     //pwmcfg.callback = NULL;
-    pwmDisablePeriodicNotification(&PWMD1);
+    //pwmDisablePeriodicNotification(&PWMD1);
 }
 
+void update_pwm_channels(PWMDriver *pwmp, uint8_t row_idx) {
+    for(uint8_t i=0; i<24; i++){
+        if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
+            uint8_t led_index = g_led_config.matrix_co[row_idx][mr_offset[i]];
+            switch(current_row % 3) {
+            case 0:
+                pwmEnableChannelI(pwmp,i,led_state[led_index].r);
+                break;
+            case 1:
+                pwmEnableChannelI(pwmp,i,led_state[led_index].b);
+                break;
+            case 2:
+                pwmEnableChannelI(pwmp,i,led_state[led_index].g);
+                break;
+            default:
+                ;
+            }
+        }
+    }
+}
 void rgb_callback(PWMDriver *pwmp) {
     // Disable the interrupt
-    shared_matrix_rgb_disable();
+    pwmDisablePeriodicNotification(pwmp);
     // Turn the selected row off
     writePinLow(led_row_pins[current_row]);
 
@@ -283,33 +303,10 @@ void rgb_callback(PWMDriver *pwmp) {
     chSysLockFromISR();
     // Scan the key matrix
     if(row_idx == 0) {
-    matrix_scan_keys(raw_matrix,row_idx);
+    shared_matrix_rgb_disable();
+    matrix_scan_keys(raw_matrix);
     }
-
-    for(uint8_t i=0; i<24; i++){
-        if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
-            uint8_t led_index = g_led_config.matrix_co[row_idx][mr_offset[i]];
-            switch(current_row % 3) {
-            case 0:
-                if (led_state[led_index].r >0) {
-                    pwmEnableChannelI(pwmp,i,led_state[led_index].r);
-                    break;
-                }
-            case 1:
-                if (led_state[led_index].b >0) {
-                    pwmEnableChannelI(pwmp,i,led_state[led_index].b);
-                    break;
-                }
-            case 2:
-                if (led_state[led_index].g >0) {
-                    pwmEnableChannelI(pwmp,i,led_state[led_index].g);
-                    break;
-                }
-            default:
-                ;
-            }
-        }
-    }
+    update_pwm_channels(pwmp, row_idx);
     chSysUnlockFromISR();
     writePinHigh(led_row_pins[current_row]);
     // Advance the timer to just before the wrap-around, that will start a new PWM cycle
