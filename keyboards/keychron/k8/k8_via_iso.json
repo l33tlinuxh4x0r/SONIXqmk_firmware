@@ -1,7 +1,7 @@
 {
   "name": "Keychron K8",
   "vendorId": "0x3434",
-  "productId": "0xfe2f",
+  "productId": "0xFE0F",
   "lighting": "none",
   "matrix": {"rows": 6, "cols": 17},
   "layouts": {
