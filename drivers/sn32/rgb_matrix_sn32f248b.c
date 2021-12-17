@@ -33,10 +33,16 @@
     (B)     (E)
     GPIO    GND
 */
+typedef struct PACKED {
+    uint8_t r;
+    uint8_t b;
+    uint8_t g;
+} RBG;
+
 static uint8_t mr_offset[24] = {0};
 static uint8_t current_row = 0;
 static const uint32_t freq = (256 * LED_MATRIX_ROWS_HW * 600);
-LED_TYPE led_state[DRIVER_LED_TOTAL];
+RBG led_state[DRIVER_LED_TOTAL];
 extern matrix_row_t raw_matrix[MATRIX_ROWS]; //raw values
 static const pin_t led_row_pins[LED_MATRIX_ROWS_HW] = LED_MATRIX_ROW_PINS;
 static const pin_t led_col_pins[LED_MATRIX_COLS] = LED_MATRIX_COL_PINS;
@@ -276,13 +282,13 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t row_idx) {
             uint8_t led_index = g_led_config.matrix_co[row_idx][mr_offset[i]];
             switch(current_row % 3) {
             case 0:
-                pwmEnableChannelI(pwmp,i,led_state[led_index].g);
-                break;
-            case 1:
                 pwmEnableChannelI(pwmp,i,led_state[led_index].r);
                 break;
-            case 2:
+            case 1:
                 pwmEnableChannelI(pwmp,i,led_state[led_index].b);
+                break;
+            case 2:
+                pwmEnableChannelI(pwmp,i,led_state[led_index].g);
                 break;
             default:
                 ;
@@ -329,8 +335,8 @@ static void flush(void) {}
 
 void SN32F24XX_set_color(int index, uint8_t r, uint8_t g, uint8_t b) {
     led_state[index].r = r;
-    led_state[index].g = g;
     led_state[index].b = b;
+    led_state[index].g = g;
 }
 
 void SN32F24XX_set_color_all(uint8_t r, uint8_t g, uint8_t b) {
