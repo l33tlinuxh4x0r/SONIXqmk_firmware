@@ -307,7 +307,7 @@ void rgb_callback(PWMDriver *pwmp) {
     pwmDisablePeriodicNotification(pwmp);
     shared_matrix_rgb_disable();
     if(current_row >= LED_MATRIX_ROWS_HW) current_row = 0;
-    uint8_t row_idx = (( current_row / LED_MATRIX_ROW_CHANNELS ) % LED_MATRIX_ROWS );
+    uint8_t row_idx = (( current_row / LED_MATRIX_ROW_CHANNELS ) % (LED_MATRIX_ROWS - 1) );
     chSysLockFromISR();
     // Scan the key matrix
     if(row_idx == 0) {
