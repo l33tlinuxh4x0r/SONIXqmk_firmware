@@ -305,8 +305,7 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t row_idx) {
 void rgb_callback(PWMDriver *pwmp) {
     // Disable the interrupt
     pwmDisablePeriodicNotification(pwmp);
-    // Turn the selected row off
-    writePinLow(led_row_pins[current_row]);
+    shared_matrix_rgb_disable();
 
     // Turn the next row on
     current_row++;
@@ -315,7 +314,6 @@ void rgb_callback(PWMDriver *pwmp) {
     chSysLockFromISR();
     // Scan the key matrix
     if(row_idx == 0) {
-    shared_matrix_rgb_disable();
     matrix_scan_keys(raw_matrix);
     }
     update_pwm_channels(pwmp, row_idx);
