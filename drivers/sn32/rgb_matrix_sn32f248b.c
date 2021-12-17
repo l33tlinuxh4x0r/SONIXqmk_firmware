@@ -304,11 +304,11 @@ void rgb_callback(PWMDriver *pwmp) {
     pwmDisablePeriodicNotification(pwmp);
     // Turn the selected row off
     writePinLow(led_row_pins[current_row]);
-    uint8_t row_idx = (( current_row / LED_MATRIX_ROW_CHANNELS ) % LED_MATRIX_ROWS );
 
     // Turn the next row on
     current_row++;
     if(current_row >= LED_MATRIX_ROWS_HW) current_row = 0;
+    uint8_t row_idx = (( current_row / LED_MATRIX_ROW_CHANNELS ) % LED_MATRIX_ROWS );
     chSysLockFromISR();
     // Scan the key matrix
     if(row_idx == 0) {
