@@ -338,9 +338,15 @@ static void flush(void) {}
 
 void SN32F24XX_set_color(int index, uint8_t r, uint8_t g, uint8_t b) {
     if (index >= 0 && index < DRIVER_LED_TOTAL) {
-        if(r >=0) led_state[index].r = r;
-        if(b >=0) led_state[index].b = b;
-        if(g >=0) led_state[index].g = g;
+        if(r >=0){
+            led_state[index].r = r;
+        } else led_state[index].r =0;
+        if(b >=0){
+            led_state[index].b = b;
+        } else led_state[index].b =0;
+        if(g >=0){
+            led_state[index].g = g;
+        } else led_state[index].g =0;
     }
 }
 
