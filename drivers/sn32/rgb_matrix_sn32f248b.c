@@ -295,8 +295,6 @@ void rgb_callback(PWMDriver *pwmp) {
     pwmDisablePeriodicNotification(pwmp);
     // Turn the selected row off
     writePinLow(led_row_pins[current_row]);
-    writePinLow(led_row_pins[current_row +1]);
-    writePinLow(led_row_pins[current_row +2]);
 
     // Turn the next row on
     current_row++;
