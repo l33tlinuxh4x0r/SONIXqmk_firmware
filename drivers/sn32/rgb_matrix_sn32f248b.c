@@ -287,12 +287,15 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t row_idx) {
             switch(current_row % LED_MATRIX_ROW_CHANNELS) {
             case 0:
                 pwmEnableChannelI(pwmp,i,led_state[led_index].r);
+                writePinHigh(led_row_pins[current_row]);
                 break;
             case 1:
                 pwmEnableChannelI(pwmp,i,led_state[led_index].b);
+                writePinHigh(led_row_pins[current_row]);
                 break;
             case 2:
                 pwmEnableChannelI(pwmp,i,led_state[led_index].g);
+                writePinHigh(led_row_pins[current_row]);
                 break;
             default:
                 ;
@@ -319,7 +322,6 @@ void rgb_callback(PWMDriver *pwmp) {
     }
     update_pwm_channels(pwmp, row_idx);
     chSysUnlockFromISR();
-    writePinHigh(led_row_pins[current_row]);
     // Advance the timer to just before the wrap-around, that will start a new PWM cycle
     pwm_lld_change_counter(pwmp, 0xFFFF);
     // Enable the interrupt
