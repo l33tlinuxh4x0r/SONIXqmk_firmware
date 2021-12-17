@@ -280,7 +280,7 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t row_idx) {
     for(uint8_t i=0; i<24; i++){
         if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
             uint8_t led_index = g_led_config.matrix_co[row_idx][mr_offset[i]];
-            switch(current_row % 3) {
+            switch(current_row % LED_MATRIX_ROW_CHANNELS) {
             case 0:
                 pwmEnableChannelI(pwmp,i,led_state[led_index].r);
                 break;
@@ -305,7 +305,7 @@ void rgb_callback(PWMDriver *pwmp) {
     // Turn the next row on
     current_row++;
     if(current_row >= LED_MATRIX_ROWS_HW) current_row = 0;
-    uint8_t row_idx = ( current_row / 3 );
+    uint8_t row_idx = (( current_row / LED_MATRIX_ROW_CHANNELS ) % LED_MATRIX_ROWS );
     chSysLockFromISR();
     // Scan the key matrix
     if(row_idx == 0) {
