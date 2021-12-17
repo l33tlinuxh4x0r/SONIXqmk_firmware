@@ -302,6 +302,9 @@ void rgb_callback(PWMDriver *pwmp) {
     // Turn the selected row off
     writePinLow(led_row_pins[current_row]);
 
+    // Turn the next row on
+    current_row++;
+    if(current_row >= LED_MATRIX_ROWS_HW) current_row = 0;
     uint8_t row_idx = (( current_row / LED_MATRIX_ROW_CHANNELS ) % LED_MATRIX_ROWS );
     chSysLockFromISR();
     // Scan the key matrix
@@ -312,9 +315,6 @@ void rgb_callback(PWMDriver *pwmp) {
     update_pwm_channels(pwmp, row_idx);
     chSysUnlockFromISR();
     writePinHigh(led_row_pins[current_row]);
-    // Move to the next row
-    current_row++;
-    if(current_row >= LED_MATRIX_ROWS_HW) current_row = 0;
     // Advance the timer to just before the wrap-around, that will start a new PWM cycle
     pwm_lld_change_counter(pwmp, 0xFFFF);
     // Enable the interrupt
