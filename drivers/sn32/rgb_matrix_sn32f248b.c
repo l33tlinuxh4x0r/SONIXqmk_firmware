@@ -35,7 +35,7 @@
 */
 static uint8_t mr_offset[24] = {0};
 static uint8_t current_row = 0;
-static const uint32_t freq = (256 * LED_MATRIX_ROWS_HW * 1200);
+static const uint32_t freq = (256 * LED_MATRIX_ROWS_HW * 600);
 LED_TYPE led_state[DRIVER_LED_TOTAL];
 extern matrix_row_t raw_matrix[MATRIX_ROWS]; //raw values
 static const pin_t led_row_pins[LED_MATRIX_ROWS_HW] = LED_MATRIX_ROW_PINS;
