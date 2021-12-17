@@ -292,7 +292,7 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t row_idx) {
 }
 void rgb_callback(PWMDriver *pwmp) {
     // Disable the interrupt
-    //pwmDisablePeriodicNotification(pwmp);
+    pwmDisablePeriodicNotification(pwmp);
     // Turn the selected row off
     writePinLow(led_row_pins[current_row]);
 
@@ -312,7 +312,7 @@ void rgb_callback(PWMDriver *pwmp) {
     // Advance the timer to just before the wrap-around, that will start a new PWM cycle
     pwm_lld_change_counter(pwmp, 0xFFFF);
     // Enable the interrupt
-    //pwmEnablePeriodicNotification(pwmp);
+    pwmEnablePeriodicNotification(pwmp);
 }
 
 void SN32F24XX_init(void) {
