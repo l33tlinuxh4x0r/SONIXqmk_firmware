@@ -41,6 +41,7 @@ typedef struct PACKED {
 
 static uint8_t mr_offset[24] = {0};
 static uint8_t current_row = 0;
+static uint8_t row_idx = 0;
 static const uint32_t freq = (256 * LED_MATRIX_ROWS_HW * 600);
 RBG led_state[DRIVER_LED_TOTAL];
 extern matrix_row_t raw_matrix[MATRIX_ROWS]; //raw values
@@ -308,7 +309,8 @@ void rgb_callback(PWMDriver *pwmp) {
     // Turn the next row on
     current_row++;
     if(current_row >= LED_MATRIX_ROWS_HW) current_row = 0;
-    uint8_t row_idx = (( current_row / LED_MATRIX_ROW_CHANNELS ) % LED_MATRIX_ROWS );
+    row_idx++;
+    if(row_idx >= LED_MATRIX_ROWS) row_idx=0;
     chSysLockFromISR();
     // Scan the key matrix
     if(row_idx == 0) {
