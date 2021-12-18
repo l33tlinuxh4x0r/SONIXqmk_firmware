@@ -41,6 +41,7 @@ typedef struct PACKED {
 
 static uint8_t mr_offset[24] = {0};
 static uint8_t current_row = 0;
+static uint8_t row_idx = 0;
 static const uint32_t freq = (256 * LED_MATRIX_ROWS_HW * 600);
 RBG led_state[DRIVER_LED_TOTAL];
 extern matrix_row_t raw_matrix[MATRIX_ROWS]; //raw values
@@ -287,6 +288,7 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t row_idx) {
             case 0:
                 pwmEnableChannelI(pwmp,i,led_state[led_index].r);
                 writePinHigh(led_row_pins[current_row]);
+                row_idx++;
                 break;
             case 1:
                 pwmEnableChannelI(pwmp,i,led_state[led_index].b);
@@ -307,10 +309,8 @@ void rgb_callback(PWMDriver *pwmp) {
     pwmDisablePeriodicNotification(pwmp);
     shared_matrix_rgb_disable();
 
-    // Turn the next row on
-    current_row++;
     if(current_row >= LED_MATRIX_ROWS_HW) current_row = 0;
-    uint8_t row_idx = (( current_row / LED_MATRIX_ROW_CHANNELS ) % (LED_MATRIX_ROWS - 1) );
+    if(row_idx >= LED_MATRIX_ROWS) row_idx = 0;
     chSysLockFromISR();
     // Scan the key matrix
     if(row_idx == 0) {
@@ -318,6 +318,8 @@ void rgb_callback(PWMDriver *pwmp) {
     }
     update_pwm_channels(pwmp, row_idx);
     chSysUnlockFromISR();
+    // Advance to the next row
+    current_row++;
     // Advance the timer to just before the wrap-around, that will start a new PWM cycle
     pwm_lld_change_counter(pwmp, 0xFFFF);
     // Enable the interrupt
@@ -338,15 +340,9 @@ static void flush(void) {}
 
 void SN32F24XX_set_color(int index, uint8_t r, uint8_t g, uint8_t b) {
     if (index >= 0 && index < DRIVER_LED_TOTAL) {
-        if(r >=0){
             led_state[index].r = r;
-        } else led_state[index].r =0;
-        if(b >=0){
             led_state[index].b = b;
-        } else led_state[index].b =0;
-        if(g >=0){
             led_state[index].g = g;
-        } else led_state[index].g =0;
     }
 }
 
