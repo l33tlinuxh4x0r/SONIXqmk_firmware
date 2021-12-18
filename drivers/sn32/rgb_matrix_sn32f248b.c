@@ -296,7 +296,6 @@ void update_pwm_channels(PWMDriver *pwmp) {
             case 2:
                 pwmEnableChannelI(pwmp,i,led_state[led_index].g);
                 writePinHigh(led_row_pins[current_row]);
-                row_idx++;
                 break;
             default:
                 ;
@@ -308,9 +307,11 @@ void rgb_callback(PWMDriver *pwmp) {
     // Disable the interrupt
     pwmDisablePeriodicNotification(pwmp);
     writePinLow(led_row_pins[current_row]);
-    // Advance to the next row
+    // Advance to the next led row
     current_row++;
     if(current_row >= LED_MATRIX_ROWS_HW) current_row = 0;
+    // Advance to the next key row
+    if(current_row % LED_MATRIX_ROW_CHANNELS == 2) row_idx++;
     if(row_idx >= LED_MATRIX_ROWS) row_idx = 0;
     chSysLockFromISR();
     // Scan the key matrix
