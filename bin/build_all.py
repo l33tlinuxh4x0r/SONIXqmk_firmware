@@ -9,7 +9,7 @@ BOARDS = [
     'redragon/k556',
     'redragon/k580',
     'redragon/k630',
-    'keychron/c1/plain'
+    'keychron/c1/plain',
     'keychron/c1/rgb',
     'keychron/c1/white',
     'keychron/c2/white',
