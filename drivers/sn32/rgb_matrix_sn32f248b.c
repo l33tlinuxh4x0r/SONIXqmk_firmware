@@ -37,7 +37,7 @@
 static uint8_t chan_order[24] = {0}; // track the channel order
 static uint8_t current_row = 0; // LED row scan counter
 static uint8_t row_idx = 0; // key row scan counter
-static const uint32_t freq = (RGB_MATRIX_MAXIMUM_BRIGHTNESS * LED_MATRIX_ROWS_HW * LED_MATRIX_COLS * RGB_MATRIX_LED_PROCESS_LIMIT);
+static const uint32_t freq = (RGB_MATRIX_HUE_STEP * RGB_MATRIX_SAT_STEP * RGB_MATRIX_VAL_STEP * RGB_MATRIX_SPD_STEP * RGB_MATRIX_LED_PROCESS_LIMIT);
 RGB led_state[DRIVER_LED_TOTAL]; // led state buffer
 extern matrix_row_t raw_matrix[MATRIX_ROWS]; //raw values
 static const pin_t led_row_pins[LED_MATRIX_ROWS_HW] = LED_MATRIX_ROW_PINS; // We expect a R,B,G order here
