@@ -33,17 +33,12 @@
     (B)     (E)
     GPIO    GND
 */
-typedef struct PACKED {
-    uint8_t r;
-    uint8_t b;
-    uint8_t g;
-} RBG;
 
 static uint8_t mr_offset[24] = {0};
 static uint8_t current_row = 0;
 static uint8_t row_idx = 0;
 static const uint32_t freq = (256 * LED_MATRIX_ROWS_HW * 600);
-RBG led_state[DRIVER_LED_TOTAL];
+RGB led_state[DRIVER_LED_TOTAL];
 extern matrix_row_t raw_matrix[MATRIX_ROWS]; //raw values
 static const pin_t led_row_pins[LED_MATRIX_ROWS_HW] = LED_MATRIX_ROW_PINS;
 static const pin_t led_col_pins[LED_MATRIX_COLS] = LED_MATRIX_COL_PINS;
