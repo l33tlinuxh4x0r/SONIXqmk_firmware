@@ -1,6 +1,21 @@
-#include "rgb_matrix.c"
 #include "rgb_matrix.h"
 #include "rgb_matrix_sn32f24xx.h"
+
+#if !defined(RGB_MATRIX_HUE_STEP)
+#    define RGB_MATRIX_HUE_STEP 8
+#endif
+
+#if !defined(RGB_MATRIX_SAT_STEP)
+#    define RGB_MATRIX_SAT_STEP 16
+#endif
+
+#if !defined(RGB_MATRIX_VAL_STEP)
+#    define RGB_MATRIX_VAL_STEP 16
+#endif
+
+#if !defined(RGB_MATRIX_SPD_STEP)
+#    define RGB_MATRIX_SPD_STEP 16
+#endif
 
 /*
     COLS key / led
