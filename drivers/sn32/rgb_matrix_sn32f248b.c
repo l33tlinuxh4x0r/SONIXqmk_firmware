@@ -278,6 +278,10 @@ void shared_matrix_rgb_enable(void) {
 }
 
 void shared_matrix_rgb_disable(void) {
+    // Disable LED outputs on row pins
+    for (uint8_t x = 0; x < LED_MATRIX_ROWS_HW; x++) {
+        writePinLow(led_row_pins[x]);
+    }
     // Disable PWM outputs on column pins
     for(uint8_t i=0;i<24;i++){
         if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
