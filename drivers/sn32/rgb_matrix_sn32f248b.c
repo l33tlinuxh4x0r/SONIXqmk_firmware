@@ -288,7 +288,6 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t row_idx) {
             case 0:
                 pwmEnableChannelI(pwmp,i,led_state[led_index].r);
                 writePinHigh(led_row_pins[current_row]);
-                row_idx++;
                 break;
             case 1:
                 pwmEnableChannelI(pwmp,i,led_state[led_index].b);
@@ -297,6 +296,7 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t row_idx) {
             case 2:
                 pwmEnableChannelI(pwmp,i,led_state[led_index].g);
                 writePinHigh(led_row_pins[current_row]);
+                row_idx++;
                 break;
             default:
                 ;
