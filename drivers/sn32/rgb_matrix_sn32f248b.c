@@ -1,3 +1,4 @@
+#include "rgb_matrix.c"
 #include "rgb_matrix.h"
 #include "rgb_matrix_sn32f24xx.h"
 
