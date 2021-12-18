@@ -37,7 +37,7 @@
 static uint8_t mr_offset[24] = {0};
 static uint8_t current_row = 0;
 static uint8_t row_idx = 0;
-static const uint32_t freq = (256 * LED_MATRIX_ROWS_HW * LED_MATRIX_COLS);
+static const uint32_t freq = (UINT8_MAX * LED_MATRIX_ROWS_HW * LED_MATRIX_COLS * BACKLIGHT_LEVELS);
 RGB led_state[DRIVER_LED_TOTAL];
 extern matrix_row_t raw_matrix[MATRIX_ROWS]; //raw values
 static const pin_t led_row_pins[LED_MATRIX_ROWS_HW] = LED_MATRIX_ROW_PINS;
@@ -281,15 +281,15 @@ void update_pwm_channels(PWMDriver *pwmp) {
             uint8_t led_index = g_led_config.matrix_co[row_idx][mr_offset[i]];
             switch(current_row % LED_MATRIX_ROW_CHANNELS) {
             case 0:
-                pwmEnableChannelI(pwmp,i,led_state[led_index].r);
-                writePinHigh(led_row_pins[current_row]);
-                break;
-            case 1:
                 pwmEnableChannelI(pwmp,i,led_state[led_index].b);
                 writePinHigh(led_row_pins[current_row]);
                 break;
-            case 2:
+            case 1:
                 pwmEnableChannelI(pwmp,i,led_state[led_index].g);
+                writePinHigh(led_row_pins[current_row]);
+                break;
+            case 2:
+                pwmEnableChannelI(pwmp,i,led_state[led_index].r);
                 writePinHigh(led_row_pins[current_row]);
                 break;
             default:
