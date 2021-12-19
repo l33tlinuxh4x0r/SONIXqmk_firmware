@@ -286,7 +286,7 @@ void shared_matrix_rgb_disable(void) {
     }
     // Disable LED outputs on row pins
     for (uint8_t x = 0; x < LED_MATRIX_ROWS_HW; x++) {
-        writePinHigh(led_row_pins[x]);
+        writePinLow(led_row_pins[x]);
     }
 }
 
@@ -322,14 +322,13 @@ void rgb_callback(PWMDriver *pwmp) {
     current_row++;
     if(current_row >= LED_MATRIX_ROWS_HW) current_row = 0;
     // Advance to the next key row
-    if(current_row % LED_MATRIX_ROW_CHANNELS == 2) row_idx++;
+    if(last_row % LED_MATRIX_ROW_CHANNELS == 0) row_idx++;
     if(row_idx >= LED_MATRIX_ROWS) row_idx = 0;
     chSysLockFromISR();
     // Scan the key matrix
     if(row_idx == 0) {
     shared_matrix_rgb_disable();
     matrix_scan_keys(raw_matrix);
-    writePinLow(led_row_pins[last_row]);
     }
     update_pwm_channels(pwmp);
     chSysUnlockFromISR();
