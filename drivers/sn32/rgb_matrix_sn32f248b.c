@@ -331,6 +331,7 @@ void rgb_callback(PWMDriver *pwmp) {
     if(row_idx == 0) {
     shared_matrix_rgb_disable();
     matrix_scan_keys(raw_matrix);
+    writePinHigh(led_row_pins[last_row]);
     }
     update_pwm_channels(pwmp, last_row);
     chSysUnlockFromISR();
