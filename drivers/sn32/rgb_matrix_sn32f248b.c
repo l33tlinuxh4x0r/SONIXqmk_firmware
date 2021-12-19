@@ -294,7 +294,7 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t last_row) {
     for(uint8_t i=0; i<24; i++){
         if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
             uint8_t led_index = g_led_config.matrix_co[row_idx][chan_order[i]];
-            switch(current_row % LED_MATRIX_ROW_CHANNELS) {
+            switch(last_row % LED_MATRIX_ROW_CHANNELS) {
             case 0:
                 writePinLow(led_row_pins[last_row]);
                 pwmEnableChannelI(pwmp,i,led_state[led_index].b);
