@@ -286,7 +286,7 @@ void shared_matrix_rgb_disable(void) {
     }
     // Disable LED outputs on row pins
     for (uint8_t x = 0; x < LED_MATRIX_ROWS_HW; x++) {
-        writePinHigh(led_row_pins[x]);
+        writePinLow(led_row_pins[x]);
     }
 }
 
