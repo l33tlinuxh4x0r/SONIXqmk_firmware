@@ -286,7 +286,7 @@ void shared_matrix_rgb_disable(void) {
     }
     // Disable LED outputs on row pins
     for (uint8_t x = 0; x < LED_MATRIX_ROWS_HW; x++) {
-        writePinLow(led_row_pins[x]);
+        writePinHigh(led_row_pins[x]);
     }
 }
 
@@ -296,15 +296,15 @@ void update_pwm_channels(PWMDriver *pwmp) {
             uint8_t led_index = g_led_config.matrix_co[row_idx][chan_order[i]];
             switch(current_row % LED_MATRIX_ROW_CHANNELS) {
             case 0:
-                pwmEnableChannelI(pwmp,i,led_state[led_index].b);
+                pwmEnableChannelI(pwmp,i,led_state[led_index].r);
                 writePinHigh(led_row_pins[current_row]);
                 break;
             case 1:
-                pwmEnableChannelI(pwmp,i,led_state[led_index].g);
+                pwmEnableChannelI(pwmp,i,led_state[led_index].b);
                 writePinHigh(led_row_pins[current_row]);
                 break;
             case 2:
-                pwmEnableChannelI(pwmp,i,led_state[led_index].r);
+                pwmEnableChannelI(pwmp,i,led_state[led_index].g);
                 writePinHigh(led_row_pins[current_row]);
                 break;
             default:
