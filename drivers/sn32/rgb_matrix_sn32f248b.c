@@ -333,7 +333,7 @@ void rgb_callback(PWMDriver *pwmp) {
     matrix_scan_keys(raw_matrix);
    // writePinHigh(led_row_pins[last_row]);
     }
-    //update_pwm_channels(pwmp, last_row);
+    update_pwm_channels(pwmp, last_row);
     chSysUnlockFromISR();
     // Advance the timer to just before the wrap-around, that will start a new PWM cycle
     pwm_lld_change_counter(pwmp, 0xFFFF);
