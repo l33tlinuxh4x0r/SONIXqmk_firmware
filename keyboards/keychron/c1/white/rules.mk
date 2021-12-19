@@ -1,5 +1,4 @@
 # project specific files
-SRC = matrix.c
 SRC += rand.c
 
 ## chip/board settings
@@ -46,7 +45,7 @@ DIP_SWITCH_ENABLE = yes
 # Custom Key and LED matrix handling
 CUSTOM_MATRIX = yes
 RGB_MATRIX_ENABLE = yes
-RGB_MATRIX_DRIVER = custom
+RGB_MATRIX_DRIVER = SN32F26x
 RGB_MATRIX_CUSTOM_KB = yes
 
 # Some options to reduce RAM usage
