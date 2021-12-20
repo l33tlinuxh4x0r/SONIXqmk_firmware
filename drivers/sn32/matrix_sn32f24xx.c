@@ -139,48 +139,46 @@ uint8_t matrix_scan(void) {
     return matrix_changed;
 }
 
-void matrix_scan_keys(matrix_row_t raw_matrix[]){
+void matrix_scan_keys(matrix_row_t raw_matrix[], uint8_t current){
         #if(DIODE_DIRECTION == ROW2COL)
-            // Read the key matrix
-            for (uint8_t col_index = 0; col_index < MATRIX_COLS; col_index++) {
-                // Enable the column
-                writePinLow(col_pins[col_index]);
-                sample_delay();
-                for (uint8_t row_index = 0; row_index < MATRIX_ROWS; row_index++) {
-                    // Check row pin state
-                    if (readPin(row_pins[row_index]) == PRESSED_KEY_PIN_STATE) {
-                        // Pin LO, set col bit
-                        raw_matrix[row_index] |= (MATRIX_ROW_SHIFTER << col_index);
-                    } else {
-                        // Pin HI, clear col bit
-                        raw_matrix[row_index] &= ~(MATRIX_ROW_SHIFTER << col_index);
-                    }
-                }
-                // Disable the column
-                writePinHigh(col_pins[col_index]);
-                //see https://github.com/SonixQMK/qmk_firmware/issues/157
-                sample_delay();
-            }
-        #elif(DIODE_DIRECTION == COL2ROW)
-            // Read the key matrix
+            // Read the key matrix rows on col
+            col_index = current;
+            // Enable the column
+            writePinLow(col_pins[col_index]);
+            sample_delay();
             for (uint8_t row_index = 0; row_index < MATRIX_ROWS; row_index++) {
-                // Enable the row
-                writePinLow(row_pins[row_index]);
-                sample_delay();
-                for (uint8_t col_index = 0; col_index < MATRIX_COLS; col_index++) {
-                    // Check row pin state
-                    if (readPin(col_pins[col_index]) == PRESSED_KEY_PIN_STATE) {
-                        // Pin LO, set col bit
-                        raw_matrix[row_index] |= (MATRIX_ROW_SHIFTER << col_index);
-                    } else {
-                        // Pin HI, clear col bit
-                        raw_matrix[row_index] &= ~(MATRIX_ROW_SHIFTER << col_index);
-                    }
+                // Check row pin state
+                if (readPin(row_pins[row_index]) == PRESSED_KEY_PIN_STATE) {
+                    // Pin LO, set col bit
+                    raw_matrix[row_index] |= (MATRIX_ROW_SHIFTER << col_index);
+                } else {
+                    // Pin HI, clear col bit
+                    raw_matrix[row_index] &= ~(MATRIX_ROW_SHIFTER << col_index);
                 }
-                // Disable the row
-                writePinHigh(row_pins[row_index]);
-                //see https://github.com/SonixQMK/qmk_firmware/issues/157
-                sample_delay();
             }
+            // Disable the column
+            writePinHigh(col_pins[col_index]);
+            //see https://github.com/SonixQMK/qmk_firmware/issues/157
+            sample_delay();
+        #elif(DIODE_DIRECTION == COL2ROW)
+            // Read the key matrix cols on row
+            row_index = current;
+            // Enable the row
+            writePinLow(row_pins[row_index]);
+            sample_delay();
+            for (uint8_t col_index = 0; col_index < MATRIX_COLS; col_index++) {
+                // Check row pin state
+                if (readPin(col_pins[col_index]) == PRESSED_KEY_PIN_STATE) {
+                    // Pin LO, set col bit
+                    raw_matrix[row_index] |= (MATRIX_ROW_SHIFTER << col_index);
+                } else {
+                    // Pin HI, clear col bit
+                    raw_matrix[row_index] &= ~(MATRIX_ROW_SHIFTER << col_index);
+                }
+            }
+            // Disable the row
+            writePinHigh(row_pins[row_index]);
+            //see https://github.com/SonixQMK/qmk_firmware/issues/157
+            sample_delay();
         #endif
 }
