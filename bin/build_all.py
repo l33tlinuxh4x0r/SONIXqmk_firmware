@@ -37,7 +37,8 @@ BOARDS = [
     'ffc/ffc61',
     'gmmk/full/rev2',
     'gmmk/full/rev3',
-    'marvo/kg938']
+    'marvo/kg938',
+    'akko/3061_rgb']
 
 error = False
 for kb in BOARDS:
