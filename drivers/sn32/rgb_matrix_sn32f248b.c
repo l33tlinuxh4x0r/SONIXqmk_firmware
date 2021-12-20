@@ -298,22 +298,16 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t last_row) {
             uint8_t led_index = g_led_config.matrix_co[row_idx][chan_order[i]];
             switch(current_row % LED_MATRIX_ROW_CHANNELS) {
             case 0:
-                if(led_state[led_index].b >0) {
                     pwmEnableChannelI(pwmp,i,led_state[led_index].b);
                     writePinHigh(led_row_pins[current_row]);
-                }
                 break;
             case 1:
-                if(led_state[led_index].g >0) {
                     pwmEnableChannelI(pwmp,i,led_state[led_index].g);
                     writePinHigh(led_row_pins[current_row]);
-                }
                 break;
             case 2:
-                if(led_state[led_index].r >0) {
                     pwmEnableChannelI(pwmp,i,led_state[led_index].r);
                     writePinHigh(led_row_pins[current_row]);
-                }
                 break;
             default:
                 ;
