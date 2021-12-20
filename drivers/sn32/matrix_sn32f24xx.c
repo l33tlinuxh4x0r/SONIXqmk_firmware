@@ -142,7 +142,7 @@ uint8_t matrix_scan(void) {
 void matrix_scan_keys(matrix_row_t raw_matrix[], uint8_t current){
         #if(DIODE_DIRECTION == ROW2COL)
             // Read the key matrix rows on col
-            col_index = current;
+            uint8_t col_index = current;
             // Enable the column
             writePinLow(col_pins[col_index]);
             sample_delay();
@@ -162,7 +162,7 @@ void matrix_scan_keys(matrix_row_t raw_matrix[], uint8_t current){
             sample_delay();
         #elif(DIODE_DIRECTION == COL2ROW)
             // Read the key matrix cols on row
-            row_index = current;
+            uint8_t row_index = current;
             // Enable the row
             writePinLow(row_pins[row_index]);
             sample_delay();
