@@ -292,6 +292,8 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t last_row) {
             #if(DIODE_DIRECTION == ROW2COL)
                 // Scan the key matrix
                 writePinLow(led_row_pins[last_row]);
+                writePinLow(led_row_pins[last_row -1]);
+                writePinLow(led_row_pins[last_row -2]);
                 pwmDisableChannelI(pwmp,chan_order[i]);
                 matrix_scan_keys(raw_matrix,chan_order[i]);
             #endif
@@ -329,6 +331,8 @@ void rgb_callback(PWMDriver *pwmp) {
     #if(DIODE_DIRECTION == COL2ROW)
         // Scan the key matrix
         writePinLow(led_row_pins[last_row]);
+        writePinLow(led_row_pins[last_row -1]);
+        writePinLow(led_row_pins[last_row -2]);
         shared_matrix_rgb_disable();
         matrix_scan_keys(raw_matrix,row_idx);
     #endif
