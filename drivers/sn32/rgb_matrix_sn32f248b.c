@@ -292,22 +292,22 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t last_row) {
             #if(DIODE_DIRECTION == ROW2COL)
                 // Scan the key matrix
                 pwmDisableChannelI(pwmp,chan_order[i]);
+                writePinLow(led_row_pins[last_row]);
+                writePinLow(led_row_pins[last_row - 1]);
+                writePinLow(led_row_pins[last_row - 2]);
                 matrix_scan_keys(raw_matrix,chan_order[i]);
             #endif
             uint8_t led_index = g_led_config.matrix_co[row_idx][chan_order[i]];
             switch(current_row % LED_MATRIX_ROW_CHANNELS) {
             case 0:
-                    writePinLow(led_row_pins[last_row]);
                     pwmEnableChannelI(pwmp,i,led_state[led_index].b);
                     writePinHigh(led_row_pins[current_row]);
                 break;
             case 1:
-                    writePinLow(led_row_pins[last_row]);
                     pwmEnableChannelI(pwmp,i,led_state[led_index].g);
                     writePinHigh(led_row_pins[current_row]);
                 break;
             case 2:
-                    writePinLow(led_row_pins[last_row]);
                     pwmEnableChannelI(pwmp,i,led_state[led_index].r);
                     writePinHigh(led_row_pins[current_row]);
                 break;
@@ -331,6 +331,9 @@ void rgb_callback(PWMDriver *pwmp) {
     #if(DIODE_DIRECTION == COL2ROW)
         // Scan the key matrix
         shared_matrix_rgb_disable();
+        writePinLow(led_row_pins[last_row]);
+        writePinLow(led_row_pins[last_row - 1]);
+        writePinLow(led_row_pins[last_row - 2]);
         matrix_scan_keys(raw_matrix,row_idx);
     #endif
     update_pwm_channels(pwmp, last_row);
