@@ -1,9 +1,9 @@
 {
-    "name": "Glorius GMMK TKL ANSI",
+    "name": "GMMK TKL ANSI",
     "lighting": "none",
     "vendorId": "0x0c45",
     "productId": "0x652f",    
-    "matrix": {"rows": 7, "cols": 16},
+    "matrix": {"rows": 7, "cols": 13},
     "layouts": {
             "keymap": [
               ["0,0", {"x":1}, "0,1", "0,2", "0,3", "0,4", {"x":0.5}, "0,5", "0,6", "0,7", "0,8", {"x":0.5}, "0,9", "0,10", "0,11", "0,12", {"x":0.25}, "6,3", "6,4", "6,5", {"y":0.25}],

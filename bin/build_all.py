@@ -26,6 +26,8 @@ BOARDS = [
     'keychron/k8/via',
     'keychron/k8/optical',
     'keychron/k8/optical_via',
+    'keychron/k14/rgb',
+    'keychron/k14/rgb/via',
     'ajazz/ak33/rev1',
     'ajazz/ak33/rev2',
     'smartduck/xs61',
