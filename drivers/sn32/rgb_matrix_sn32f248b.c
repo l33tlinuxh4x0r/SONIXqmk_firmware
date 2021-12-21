@@ -58,6 +58,7 @@ RGB led_state[DRIVER_LED_TOTAL]; // led state buffer
 extern matrix_row_t raw_matrix[MATRIX_ROWS]; //raw values
 static const pin_t led_row_pins[LED_MATRIX_ROWS_HW] = LED_MATRIX_ROW_PINS; // We expect a R,B,G order here
 static const pin_t led_col_pins[LED_MATRIX_COLS] = LED_MATRIX_COL_PINS;
+bool enable_pwm = false;
 
 /* PWM configuration structure. We use timer CT16B1 with 24 channels. */
 static PWMConfig pwmcfg = {
@@ -302,15 +303,19 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t last_row) {
                 matrix_scan_keys(raw_matrix,chan_order[i]);
             #endif
             uint8_t led_index = g_led_config.matrix_co[row_idx][chan_order[i]];
+            // Check if we need to enable RGB output
+            if (led_state[led_index].b >0) enable_pwm |= true;
+            if (led_state[led_index].g >0) enable_pwm |= true;
+            if (led_state[led_index].r >0) enable_pwm |= true;
             switch(current_row % LED_MATRIX_ROW_CHANNELS) {
             case 0:
-                    pwmEnableChannelI(pwmp,i,led_state[led_index].b);
+                    if(enable_pwm) pwmEnableChannelI(pwmp,i,led_state[led_index].b);
                 break;
             case 1:
-                    pwmEnableChannelI(pwmp,i,led_state[led_index].g);
+                    if(enable_pwm) pwmEnableChannelI(pwmp,i,led_state[led_index].g);
                 break;
             case 2:
-                    pwmEnableChannelI(pwmp,i,led_state[led_index].r);
+                    if(enable_pwm) pwmEnableChannelI(pwmp,i,led_state[led_index].r);
                 break;
             default:
                 ;
@@ -340,7 +345,7 @@ void rgb_callback(PWMDriver *pwmp) {
         shared_matrix_rgb_disable_leds();
     #endif
     update_pwm_channels(pwmp, last_row);
-    writePinHigh(led_row_pins[current_row]);
+    if(enable_pwm) writePinHigh(led_row_pins[current_row]);
     chSysUnlockFromISR();
     // Advance the timer to just before the wrap-around, that will start a new PWM cycle
     pwm_lld_change_counter(pwmp, 0xFFFF);
