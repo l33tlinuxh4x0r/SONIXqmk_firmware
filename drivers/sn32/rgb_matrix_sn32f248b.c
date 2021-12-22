@@ -304,9 +304,9 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t last_row) {
             #endif
             uint8_t led_index = g_led_config.matrix_co[row_idx][chan_order[i]];
             // Check if we need to enable RGB output
-            if (led_state[led_index].b >0) enable_pwm |= true;
-            if (led_state[led_index].g >0) enable_pwm |= true;
-            if (led_state[led_index].r >0) enable_pwm |= true;
+            if (led_state[led_index].b != 0) enable_pwm |= true;
+            if (led_state[led_index].g != 0) enable_pwm |= true;
+            if (led_state[led_index].r != 0) enable_pwm |= true;
             switch(current_row % LED_MATRIX_ROW_CHANNELS) {
             case 0:
                     if(enable_pwm) pwmEnableChannelI(pwmp,i,led_state[led_index].b);
