@@ -299,7 +299,7 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t last_row) {
         if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
             #if(DIODE_DIRECTION == ROW2COL)
                 // Scan the key matrix
-                pwmDisableChannelI(pwmp,chan_order[i]);
+                pwmDisableChannelI(pwmp,i);
                 matrix_scan_keys(raw_matrix,chan_order[i]);
             #endif
             uint8_t led_index = g_led_config.matrix_co[row_idx][chan_order[i]];
