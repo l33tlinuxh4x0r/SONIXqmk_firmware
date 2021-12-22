@@ -1,14 +1,14 @@
 # Keychron K8
 
-K8 Gateron Hotswap RGB ANSI
+K8 Gateron Hotswap RGB
 
 Make example for this keyboard (after setting up your build environment):
 
-    make keychron/k8:default
+    make keychron/k8:ansi
 
-For default ISO UK:
+For default ISO:
 
-    make keychron/k8:iso_uk
+    make keychron/k8:iso
     
 * * *
 For more info and detailed flashing instructions, please visit https://github.com/alex-dinh/keychron-k8

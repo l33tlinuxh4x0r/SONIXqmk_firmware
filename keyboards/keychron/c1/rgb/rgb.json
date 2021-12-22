@@ -1,7 +1,7 @@
 {
   "name": "Keychron C1",
-  "vendorId": "0x05AC",
-  "productId": "0x024F",
+  "vendorId": "0x3434",
+  "productId": "0xFE20",
   "lighting": "none",
   "matrix": {"rows": 6, "cols": 17},
   "layouts": {

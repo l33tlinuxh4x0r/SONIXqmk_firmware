@@ -1,5 +1,5 @@
 # project specific files
-SRC = ../../../drivers/sn32/matrix_sn32f248b.c
+SRC = ../../../drivers/sn32/matrix_sn32f24xx.c
 SRC += config_led.c
 
 ## chip/board settings
@@ -56,7 +56,7 @@ SERIAL_LINK_ENABLE = no
 WAIT_FOR_USB = yes
 CUSTOM_MATRIX = yes
 DIP_SWITCH_ENABLE = yes
-KEYBOARD_SHARED_EP = yes
+KEYBOARD_SHARED_EP = no
 
 # Custom RGB matrix handling
 RGB_MATRIX_ENABLE = yes

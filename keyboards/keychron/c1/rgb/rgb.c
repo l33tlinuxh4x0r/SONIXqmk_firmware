@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Manage Windows and Mac LEDs
 // - Show status of mode switch
 // - Turn LEDs off durring USB suspend
-bool mode_leds_show = true;
-bool mode_leds_windows;
+static bool mode_leds_show = true;
+static bool mode_leds_windows;
 
 static void mode_leds_update(void){
     writePin(LED_WIN_PIN, mode_leds_show && mode_leds_windows);
@@ -51,9 +51,19 @@ void suspend_power_down_user(void) {
     // Turn leds off
     mode_leds_show = false;
     mode_leds_update();
+
+    // Suspend RGB
+    rgb_matrix_set_suspend_state(true);
 }
 
-void suspend_wakeup_init_user(void) {
+/// TODO: Clean-up workaround
+/// Currently the suspend_wakeup_init_user() has issues. See https://github.com/SonixQMK/qmk_firmware/issues/80
+/// A workaround is to use housekeeping_task_user() instead.
+void housekeeping_task_user(void) {
+    // Turn on
     mode_leds_show = true;
     mode_leds_update();
+
+    // Turn on RGB
+    rgb_matrix_set_suspend_state(false);
 }

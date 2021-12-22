@@ -208,7 +208,7 @@ ifeq ($(strip $(LED_MATRIX_ENABLE)), yes)
 endif
 
 RGB_MATRIX_ENABLE ?= no
-VALID_RGB_MATRIX_TYPES := IS31FL3731 IS31FL3733 IS31FL3737 IS31FL3741 WS2812 SN32F248B custom
+VALID_RGB_MATRIX_TYPES := IS31FL3731 IS31FL3733 IS31FL3737 IS31FL3741 WS2812 SN32F248B SN32F26x custom
 
 ifeq ($(strip $(RGB_MATRIX_ENABLE)), yes)
     ifeq ($(filter $(RGB_MATRIX_DRIVER),$(VALID_RGB_MATRIX_TYPES)),)
@@ -264,6 +264,11 @@ endif
         COMMON_VPATH += $(DRIVER_PATH)/sn32
         SRC += rgb_matrix_sn32f248b.c
     endif    
+
+    ifeq ($(strip $(RGB_MATRIX_DRIVER)), SN32F26x)
+        COMMON_VPATH += $(DRIVER_PATH)/sn32
+        SRC += matrix_sn32f26x.c
+    endif
 
     ifeq ($(strip $(RGB_MATRIX_CUSTOM_KB)), yes)
         OPT_DEFS += -DRGB_MATRIX_CUSTOM_KB
