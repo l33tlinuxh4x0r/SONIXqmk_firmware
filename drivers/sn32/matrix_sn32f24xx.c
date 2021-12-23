@@ -85,23 +85,35 @@ static void init_pins(void) {
     for (uint8_t x = 0; x < MATRIX_ROWS; x++) {
         setPinInputHigh(row_pins[x]);
     }
-    // Unselect COLs
-    for (uint8_t x = 0; x < MATRIX_COLS; x++) {
-        setPinOutput(col_pins[x]);
-        writePinHigh(col_pins[x]);
-    }
 #elif(DIODE_DIRECTION == COL2ROW)
-    //  Unselect ROWs
-    for (uint8_t x = 0; x < MATRIX_ROWS; x++) {
-        setPinOutput(row_pins[x]);
-        writePinHigh(row_pins[x]);
-    }
     // Unselect COLs
     for (uint8_t x = 0; x < MATRIX_COLS; x++) {
         setPinInputHigh(col_pins[x]);
     }
 #else
 #error DIODE_DIRECTION must be one of COL2ROW or ROW2COL!
+#endif
+}
+
+void matrix_scan_select(uint8_t current){ 
+#if(DIODE_DIRECTION == ROW2COL)
+    // Select COL
+    setPinOutput(col_pins[current]);
+    writePinLow(col_pins[current]);
+#elif(DIODE_DIRECTION == COL2ROW)
+    // Select ROW
+    setPinOutput(row_pins[current]);
+    writePinLow(row_pins[current]);
+#endif
+}
+
+void matrix_scan_unselect(uint8_t current) {
+#if(DIODE_DIRECTION == ROW2COL)
+    // Select COL
+    setPinInputHigh(col_pins[current]);
+#elif(DIODE_DIRECTION == COL2ROW)
+    // Select ROW
+    setPinInputHigh(row_pins[current]);
 #endif
 }
 
@@ -144,7 +156,7 @@ void matrix_scan_keys(matrix_row_t raw_matrix[], uint8_t current){
             // Read the key matrix rows on col
             uint8_t col_index = current;
             // Enable the column
-            writePinLow(col_pins[col_index]);
+            matrix_scan_select(col_index);
             sample_delay();
             for (uint8_t row_index = 0; row_index < MATRIX_ROWS; row_index++) {
                 // Check row pin state
@@ -157,14 +169,14 @@ void matrix_scan_keys(matrix_row_t raw_matrix[], uint8_t current){
                 }
             }
             // Disable the column
-            writePinHigh(col_pins[col_index]);
+            matrix_scan_unselect(col_index);
             //see https://github.com/SonixQMK/qmk_firmware/issues/157
             sample_delay();
         #elif(DIODE_DIRECTION == COL2ROW)
             // Read the key matrix cols on row
             uint8_t row_index = current;
             // Enable the row
-            writePinLow(row_pins[row_index]);
+            matrix_scan_select(row_index);
             sample_delay();
             for (uint8_t col_index = 0; col_index < MATRIX_COLS; col_index++) {
                 // Check row pin state
@@ -177,7 +189,7 @@ void matrix_scan_keys(matrix_row_t raw_matrix[], uint8_t current){
                 }
             }
             // Disable the row
-            writePinHigh(row_pins[row_index]);
+            matrix_scan_unselect(row_index);
             //see https://github.com/SonixQMK/qmk_firmware/issues/157
             sample_delay();
         #endif
