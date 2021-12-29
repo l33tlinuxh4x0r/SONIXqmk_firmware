@@ -5,10 +5,12 @@ on:
     branches:
     - sn32
     - sn32_openrgb
+    - sonixdev
   pull_request:
     branches:
     - sn32
     - sn32_openrgb
+    - sonixdev
 
 jobs:
   Build:
