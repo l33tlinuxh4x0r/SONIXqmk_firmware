@@ -88,7 +88,7 @@ static void init_pins(void) {
 #elif(DIODE_DIRECTION == COL2ROW)
     // Unselect COLs
     for (uint8_t x = 0; x < MATRIX_COLS; x++) {
-        setPinInputHigh(col_pins[x]);
+        setPinInput(col_pins[x]);
     }
 #else
 #error DIODE_DIRECTION must be one of COL2ROW or ROW2COL!
