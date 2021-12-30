@@ -324,6 +324,7 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t last_row) {
             default:
                 ;
             }
+            if(enable_pwm) writePinHigh(led_row_pins[current_row]);
         }
     }
 }
@@ -339,7 +340,6 @@ void rgb_callback(PWMDriver *pwmp) {
     if(row_idx >= LED_MATRIX_ROWS) row_idx = 0;
     chSysLockFromISR();
     update_pwm_channels(pwmp, last_row);
-    if(enable_pwm) writePinHigh(led_row_pins[current_row]);
     chSysUnlockFromISR();
     // Advance the timer to just before the wrap-around, that will start a new PWM cycle
     pwm_lld_change_counter(pwmp, 0xFFFF);
