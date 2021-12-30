@@ -297,12 +297,13 @@ void shared_matrix_rgb_disable_leds(void) {
 void update_pwm_channels(PWMDriver *pwmp, uint8_t last_row) {
     for(uint8_t i=0; i<24; i++){
         if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
-            pwmDisableChannelI(pwmp,i);
             shared_matrix_rgb_disable_leds();
             // Scan the key matrix
             #if(DIODE_DIRECTION == ROW2COL)
+                pwmDisableChannelI(pwmp,i);
                 matrix_scan_keys(raw_matrix,chan_order[i]);
             #elif(DIODE_DIRECTION == COL2ROW)
+                shared_matrix_rgb_disable_pwm();
                 matrix_scan_keys(raw_matrix, row_idx);
             #endif
             uint8_t led_index = g_led_config.matrix_co[row_idx][chan_order[i]];
