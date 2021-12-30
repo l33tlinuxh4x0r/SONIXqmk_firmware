@@ -297,7 +297,6 @@ void shared_matrix_rgb_disable_leds(void) {
 void update_pwm_channels(PWMDriver *pwmp, uint8_t last_row) {
     for(uint8_t i=0; i<24; i++){
         if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
-            shared_matrix_rgb_disable_leds();
             // Scan the key matrix
             #if(DIODE_DIRECTION == ROW2COL)
                 pwmDisableChannelI(pwmp,i);
@@ -324,7 +323,6 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t last_row) {
             default:
                 ;
             }
-            if(enable_pwm) writePinHigh(led_row_pins[current_row]);
         }
     }
 }
@@ -339,7 +337,9 @@ void rgb_callback(PWMDriver *pwmp) {
     if(current_row % LED_MATRIX_ROW_CHANNELS == 2) row_idx++;
     if(row_idx >= LED_MATRIX_ROWS) row_idx = 0;
     chSysLockFromISR();
+    shared_matrix_rgb_disable_leds();
     update_pwm_channels(pwmp, last_row);
+    if(enable_pwm) writePinHigh(led_row_pins[current_row]);
     chSysUnlockFromISR();
     // Advance the timer to just before the wrap-around, that will start a new PWM cycle
     pwm_lld_change_counter(pwmp, 0xFFFF);
