@@ -299,11 +299,8 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t last_row) {
         if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
             // Scan the key matrix
             #if(DIODE_DIRECTION == ROW2COL)
-                pwmDisableChannelI(pwmp,i);
+                pwmDisableChannelI(pwmp,chan_order[i]);
                 matrix_scan_keys(raw_matrix,chan_order[i]);
-            #elif(DIODE_DIRECTION == COL2ROW)
-                shared_matrix_rgb_disable_pwm();
-                matrix_scan_keys(raw_matrix, row_idx);
             #endif
             uint8_t led_index = g_led_config.matrix_co[row_idx][chan_order[i]];
             // Check if we need to enable RGB output
@@ -312,13 +309,13 @@ void update_pwm_channels(PWMDriver *pwmp, uint8_t last_row) {
             if (led_state[led_index].r != 0) enable_pwm |= true;
             switch(current_row % LED_MATRIX_ROW_CHANNELS) {
             case 0:
-                    if(enable_pwm) pwmEnableChannelI(pwmp,i,led_state[led_index].b);
+                    if(enable_pwm) pwmEnableChannelI(pwmp,chan_order[i],led_state[led_index].b);
                 break;
             case 1:
-                    if(enable_pwm) pwmEnableChannelI(pwmp,i,led_state[led_index].g);
+                    if(enable_pwm) pwmEnableChannelI(pwmp,chan_order[i],led_state[led_index].g);
                 break;
             case 2:
-                    if(enable_pwm) pwmEnableChannelI(pwmp,i,led_state[led_index].r);
+                    if(enable_pwm) pwmEnableChannelI(pwmp,chan_order[i],led_state[led_index].r);
                 break;
             default:
                 ;
@@ -338,6 +335,10 @@ void rgb_callback(PWMDriver *pwmp) {
     if(row_idx >= LED_MATRIX_ROWS) row_idx = 0;
     chSysLockFromISR();
     shared_matrix_rgb_disable_leds();
+    #if(DIODE_DIRECTION == COL2ROW)
+        shared_matrix_rgb_disable_pwm();
+        matrix_scan_keys(raw_matrix, row_idx);
+    #endif
     update_pwm_channels(pwmp, last_row);
     if(enable_pwm) writePinHigh(led_row_pins[current_row]);
     chSysUnlockFromISR();
