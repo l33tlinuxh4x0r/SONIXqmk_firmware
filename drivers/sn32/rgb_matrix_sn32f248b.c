@@ -297,10 +297,13 @@ void shared_matrix_rgb_disable_leds(void) {
 void update_pwm_channels(PWMDriver *pwmp, uint8_t last_row) {
     for(uint8_t i=0; i<24; i++){
         if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
+            pwmDisableChannelI(pwmp,i);
+            shared_matrix_rgb_disable_leds();
+            // Scan the key matrix
             #if(DIODE_DIRECTION == ROW2COL)
-                // Scan the key matrix
-                pwmDisableChannelI(pwmp,i);
                 matrix_scan_keys(raw_matrix,chan_order[i]);
+            #elif(DIODE_DIRECTION == COL2ROW)
+                matrix_scan_keys(raw_matrix, row_idx);
             #endif
             uint8_t led_index = g_led_config.matrix_co[row_idx][chan_order[i]];
             // Check if we need to enable RGB output
@@ -334,18 +337,6 @@ void rgb_callback(PWMDriver *pwmp) {
     if(current_row % LED_MATRIX_ROW_CHANNELS == 2) row_idx++;
     if(row_idx >= LED_MATRIX_ROWS) row_idx = 0;
     chSysLockFromISR();
-    #if(DIODE_DIRECTION == COL2ROW)
-        // Scan the key matrix
-        if(enable_pwm){
-            writePinLow(led_row_pins[last_row]);
-            writePinLow(led_row_pins[last_row - 1]);
-            writePinLow(led_row_pins[last_row - 2]);
-        }
-        shared_matrix_rgb_disable_pwm();
-        matrix_scan_keys(raw_matrix, row_idx);
-    #elif(DIODE_DIRECTION == ROW2COL)
-        if(enable_pwm) shared_matrix_rgb_disable_leds();
-    #endif
     update_pwm_channels(pwmp, last_row);
     if(enable_pwm) writePinHigh(led_row_pins[current_row]);
     chSysUnlockFromISR();
