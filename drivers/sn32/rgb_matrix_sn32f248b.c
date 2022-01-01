@@ -321,7 +321,7 @@ void update_pwm_channels(PWMDriver *pwmp) {
     for(uint8_t i=0; i<LED_MATRIX_COLS; i++){
         // Scan the key matrix
         #if(DIODE_DIRECTION == ROW2COL)
-            matrix_scan_keys(raw_matrix,chan_col_order[i]);
+            matrix_scan_keys(raw_matrix,i);
         #endif
         uint8_t led_index = g_led_config.matrix_co[row_idx][chan_order[i]];
         // Check if we need to enable RGB output
