@@ -57,3 +57,6 @@
 /* Enable reactive RGB animations */
 #define RGB_MATRIX_FRAMEBUFFER_EFFECTS
 #define RGB_MATRIX_KEYPRESSES
+
+/* RGB sleep with usb or computer */
+#define RGB_DISABLE_WHEN_USB_SUSPENDED true
