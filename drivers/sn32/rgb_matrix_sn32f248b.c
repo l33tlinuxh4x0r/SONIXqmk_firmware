@@ -49,7 +49,6 @@
     (B)     (E)
     GPIO    GND
 */
-static uint8_t chan_order[24] = {0}; // track the channel order
 static uint8_t chan_col_order[LED_MATRIX_COLS] = {0}; // track the channel col order
 static uint8_t current_row = 0; // LED row scan counter
 static uint8_t row_idx = 0; // key row scan counter
@@ -104,7 +103,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[0].pfpamsk = 1;
             case A0:
                 cfg->channels[0].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[0] = i;
                 chan_col_order[i] = 0;
                 break;
 
@@ -112,7 +110,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[1].pfpamsk = 1;
             case A1:
                 cfg->channels[1].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[1] = i;
                 chan_col_order[i] = 1;
                 break;
             
@@ -120,7 +117,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[2].pfpamsk = 1;
             case A2:
                 cfg->channels[2].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[2] = i;
                 chan_col_order[i] = 2;
                 break;
 
@@ -128,7 +124,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[3].pfpamsk = 1;
             case A3:
                 cfg->channels[3].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[3] = i;
                 chan_col_order[i] = 3;
                 break;
 
@@ -136,7 +131,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[4].pfpamsk = 1;
             case A4:
                 cfg->channels[4].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[4] = i;
                 chan_col_order[i] = 4;
                 break;
 
@@ -144,7 +138,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[5].pfpamsk = 1;
             case A5:
                 cfg->channels[5].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[5] = i;
                 chan_col_order[i] = 5;
                 break;
 
@@ -152,7 +145,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[6].pfpamsk = 1;
             case A6:
                 cfg->channels[6].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[6] = i;
                 chan_col_order[i] = 6;
                 break;
 
@@ -160,7 +152,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[7].pfpamsk = 1;
             case A7:
                 cfg->channels[7].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[7] = i;
                 chan_col_order[i] = 7;
                 break;
 
@@ -168,7 +159,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[8].pfpamsk = 1;
             case A8:
                 cfg->channels[8].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[8] = i;
                 chan_col_order[i] = 8;
                 break;
 
@@ -176,7 +166,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[9].pfpamsk = 1;
             case A9:
                 cfg->channels[9].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[9] = i;
                 chan_col_order[i] = 9;
                 break;
 
@@ -184,7 +173,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[10].pfpamsk = 1;
             case A10:
                 cfg->channels[10].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[10] = i;
                 chan_col_order[i] = 10;
                 break;
 
@@ -192,7 +180,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[11].pfpamsk = 1;
             case A11:
                 cfg->channels[11].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[11] = i;
                 chan_col_order[i] = 11;
                 break;
 
@@ -200,7 +187,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[12].pfpamsk = 1;
             case A12:
                 cfg->channels[12].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[12] = i;
                 chan_col_order[i] = 12;
                 break;
 
@@ -208,7 +194,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[13].pfpamsk = 1;
             case A13:
                 cfg->channels[13].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[13] = i;
                 chan_col_order[i] = 13;
                 break;
 
@@ -216,7 +201,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[14].pfpamsk = 1;
             case A14:
                 cfg->channels[14].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[14] = i;
                 chan_col_order[i] = 14;
                 break;
 
@@ -224,7 +208,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[15].pfpamsk = 1;
             case A15:
                 cfg->channels[15].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[15] = i;
                 chan_col_order[i] = 15;
                 break;
 
@@ -232,7 +215,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[16].pfpamsk = 1;
             case B0:
                 cfg->channels[16].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[16] = i;
                 chan_col_order[i] = 16;
                 break;
 
@@ -240,7 +222,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[17].pfpamsk = 1;
             case B1:
                 cfg->channels[17].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[17] = i;
                 chan_col_order[i] = 17;
                 break;
 
@@ -248,7 +229,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[18].pfpamsk = 1;
             case B2:
                 cfg->channels[18].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[18] = i;
                 chan_col_order[i] = 18;
                 break;
 
@@ -256,7 +236,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[19].pfpamsk = 1;
             case B3:
                 cfg->channels[19].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[19] = i;
                 chan_col_order[i] = 19;
                 break;
 
@@ -264,7 +243,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[20].pfpamsk = 1;
             case B4:
                 cfg->channels[20].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[20] = i;
                 chan_col_order[i] = 20;
                 break;
 
@@ -272,7 +250,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[21].pfpamsk = 1;
             case B5:
                 cfg->channels[21].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[21] = i;
                 chan_col_order[i] = 21;
                 break;
 
@@ -280,7 +257,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[22].pfpamsk = 1;
             case B6:
                 cfg->channels[22].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[22] = i;
                 chan_col_order[i] = 22;
                 break;
 
@@ -288,7 +264,6 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
                 cfg->channels[23].pfpamsk = 1;
             case B7:
                 cfg->channels[23].mode = PWM_OUTPUT_ACTIVE_LOW;
-                chan_order[23] = i;
                 chan_col_order[i] = 23;
                 break;
         }
@@ -303,10 +278,8 @@ void shared_matrix_rgb_enable(void) {
 
 void shared_matrix_rgb_disable_pwm(void) {
     // Disable PWM outputs on column pins
-    for(uint8_t i=0;i<24;i++){
-        if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
-            pwmDisableChannel(&PWMD1,i);
-        }
+    for(uint8_t y = 0; y < LED_MATRIX_COLS; y++) {
+        pwmDisableChannel(&PWMD1,chan_col_order[y]);
     }
 }
 
@@ -318,25 +291,25 @@ void shared_matrix_rgb_disable_leds(void) {
 }
 
 void update_pwm_channels(PWMDriver *pwmp) {
-    for(uint8_t i=0; i<LED_MATRIX_COLS; i++){
+    for(uint8_t col_idx = 0; col_idx < LED_MATRIX_COLS; col_idx++) {
         // Scan the key matrix
         #if(DIODE_DIRECTION == ROW2COL)
-            matrix_scan_keys(raw_matrix,i);
+            matrix_scan_keys(raw_matrix,col_idx);
         #endif
-        uint8_t led_index = g_led_config.matrix_co[row_idx][i];
+        uint8_t led_index = g_led_config.matrix_co[row_idx][col_idx];
         // Check if we need to enable RGB output
         if (led_state[led_index].b != 0) enable_pwm |= true;
         if (led_state[led_index].g != 0) enable_pwm |= true;
         if (led_state[led_index].r != 0) enable_pwm |= true;
         switch(current_row % LED_MATRIX_ROW_CHANNELS) {
         case 0:
-                if(enable_pwm) pwmEnableChannelI(pwmp,chan_col_order[i],led_state[led_index].b);
+                if(enable_pwm) pwmEnableChannelI(pwmp,chan_col_order[col_idx],led_state[led_index].b);
             break;
         case 1:
-                if(enable_pwm) pwmEnableChannelI(pwmp,chan_col_order[i],led_state[led_index].g);
+                if(enable_pwm) pwmEnableChannelI(pwmp,chan_col_order[col_idx],led_state[led_index].g);
             break;
         case 2:
-                if(enable_pwm) pwmEnableChannelI(pwmp,chan_col_order[i],led_state[led_index].r);
+                if(enable_pwm) pwmEnableChannelI(pwmp,chan_col_order[col_idx],led_state[led_index].r);
             break;
         default:
             ;
