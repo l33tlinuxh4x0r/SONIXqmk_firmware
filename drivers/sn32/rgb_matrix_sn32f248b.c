@@ -300,7 +300,7 @@ void update_pwm_channels(PWMDriver *pwmp) {
             // Scan the key matrix
             #if(DIODE_DIRECTION == ROW2COL)
                 pwmDisableChannelI(pwmp,i);
-                matrix_scan_keys(raw_matrix,i);
+                matrix_scan_keys(raw_matrix,chan_order[i]);
             #endif
             uint8_t led_index = g_led_config.matrix_co[row_idx][chan_order[i]];
             // Check if we need to enable RGB output
