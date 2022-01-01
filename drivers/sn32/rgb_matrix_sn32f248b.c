@@ -50,7 +50,7 @@
     GPIO    GND
 */
 
-static uint8_t chan_order[24] = {0}; // track the channel order
+static uint8_t chan_col_order[LED_MATRIX_COLS] = {0}; // track the channel col order
 static uint8_t current_row = 0; // LED row scan counter
 static uint8_t row_idx = 0; // key row scan counter
 static const uint32_t freq = (RGB_MATRIX_HUE_STEP * RGB_MATRIX_SAT_STEP * RGB_MATRIX_VAL_STEP * RGB_MATRIX_SPD_STEP * RGB_MATRIX_LED_PROCESS_LIMIT);
@@ -95,7 +95,8 @@ static PWMConfig pwmcfg = {
 };
 
 void rgb_ch_ctrl(PWMConfig *cfg) {
-    
+
+    uint8_t chan_order[24] = {255}; // track the channel order
     /* Enable PWM function, IOs and select the PWM modes for the LED column pins */
     for(uint8_t i = 0; i < LED_MATRIX_COLS; i++) {
         switch(led_col_pins[i]) {
@@ -270,6 +271,11 @@ void rgb_ch_ctrl(PWMConfig *cfg) {
         }
     }
 
+    for(uint8_t i=0; i<24;i++) {
+        if(chan_order[i] < LED_MATRIX_COLS) {
+            chan_col_order[i] = chan_order[i];
+        }
+    }
 }
 void rgb_callback(PWMDriver *pwmp);
 
@@ -295,30 +301,28 @@ void shared_matrix_rgb_disable_leds(void) {
 }
 
 void update_pwm_channels(PWMDriver *pwmp) {
-    for(uint8_t i=0; i<24; i++){
-        if (&pwmcfg.channels[i].mode != PWM_OUTPUT_DISABLED){
-            // Scan the key matrix
-            #if(DIODE_DIRECTION == ROW2COL)
-                matrix_scan_keys(raw_matrix,chan_order[i]);
-            #endif
-            uint8_t led_index = g_led_config.matrix_co[row_idx][chan_order[i]];
-            // Check if we need to enable RGB output
-            if (led_state[led_index].b != 0) enable_pwm |= true;
-            if (led_state[led_index].g != 0) enable_pwm |= true;
-            if (led_state[led_index].r != 0) enable_pwm |= true;
-            switch(current_row % LED_MATRIX_ROW_CHANNELS) {
-            case 0:
-                    if(enable_pwm) pwmEnableChannelI(pwmp,i,led_state[led_index].b);
-                break;
-            case 1:
-                    if(enable_pwm) pwmEnableChannelI(pwmp,i,led_state[led_index].g);
-                break;
-            case 2:
-                    if(enable_pwm) pwmEnableChannelI(pwmp,i,led_state[led_index].r);
-                break;
-            default:
-                ;
-            }
+    for(uint8_t i=0; i<LED_MATRIX_COLS; i++){
+        // Scan the key matrix
+        #if(DIODE_DIRECTION == ROW2COL)
+            matrix_scan_keys(raw_matrix,chan_col_order[i]);
+        #endif
+        uint8_t led_index = g_led_config.matrix_co[row_idx][chan_col_order[i]];
+        // Check if we need to enable RGB output
+        if (led_state[led_index].b != 0) enable_pwm |= true;
+        if (led_state[led_index].g != 0) enable_pwm |= true;
+        if (led_state[led_index].r != 0) enable_pwm |= true;
+        switch(current_row % LED_MATRIX_ROW_CHANNELS) {
+        case 0:
+                if(enable_pwm) pwmEnableChannelI(pwmp,chan_col_order[i],led_state[led_index].b);
+            break;
+        case 1:
+                if(enable_pwm) pwmEnableChannelI(pwmp,chan_col_order[i],led_state[led_index].g);
+            break;
+        case 2:
+                if(enable_pwm) pwmEnableChannelI(pwmp,chan_col_order[i],led_state[led_index].r);
+            break;
+        default:
+            ;
         }
     }
 }
