@@ -15,6 +15,8 @@
 
 #define SDB     B0
 
+extern void SPI0_Flush(void);
+
 #ifdef VIA_OPENRGB_HYBRID
 uint8_t is_orgb_mode;
 #endif
@@ -52,7 +54,8 @@ void spi_read3(unsigned char b1, unsigned char b2, unsigned char *b3)
 void spi_write(uint8_t *data_p, int len)
 {    
     writePinLow(g_cs_pin);    
-    SPI0_Write(data_p, len);    
+    SPI0_Write(data_p, len);
+    SPI0_Flush();
     writePinHigh(g_cs_pin);
 }
 

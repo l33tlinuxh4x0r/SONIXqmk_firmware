@@ -42,29 +42,35 @@ bool dip_switch_update_user(uint8_t index, bool active){
     return true;
 }
 
-void keyboard_pre_init_user(void) {
+void keyboard_pre_init_kb(void) {
     // Setup Win & Mac LED Pins as output
     setPinOutput(LED_WIN_PIN);
     setPinOutput(LED_MAC_PIN);
+
+    keyboard_pre_init_user();
 }
 
-void suspend_power_down_user(void) {
+void suspend_power_down_kb(void) {
     // Turn leds off
     mode_leds_show = false;
     mode_leds_update();
 
     // Suspend RGB
     rgb_matrix_set_suspend_state(true);
+
+    suspend_power_down_user();
 }
 
 /// TODO: Clean-up workaround
 /// Currently the suspend_wakeup_init_user() has issues. See https://github.com/SonixQMK/qmk_firmware/issues/80
 /// A workaround is to use housekeeping_task_user() instead.
-void housekeeping_task_user(void) {
+void housekeeping_task_kb(void) {
     // Turn on
     mode_leds_show = true;
     mode_leds_update();
 
     // Turn on RGB
     rgb_matrix_set_suspend_state(false);
+
+    housekeeping_task_user();
 }

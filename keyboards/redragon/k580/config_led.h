@@ -28,7 +28,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define LED_MATRIX_COLS MATRIX_COLS
 #define LED_MATRIX_COL_PINS MATRIX_COL_PINS
 
+#define UNDERGLOW_RBG
 #define UNDERGLOW_LEDS 14
-#define UNDERGLOW_IDX { 13, 112, 114, 115, 116, 117, 118, 17, 18, 19, 20, 79, 100, 98 }
+#define UNDERGLOW_IDX { 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117 }
 
 #define DRIVER_LED_TOTAL (118)

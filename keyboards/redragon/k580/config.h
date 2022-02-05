@@ -24,7 +24,7 @@
 #define DEVICE_VER      0x0001
 
 #define MANUFACTURER    Redragon
-#define PRODUCT         K580
+#define PRODUCT         Redragon K580 VATA
 #define DESCRIPTION     K580 VATA
 
 /* key matrix size */

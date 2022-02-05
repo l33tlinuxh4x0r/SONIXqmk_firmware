@@ -35,9 +35,6 @@ Ported to QMK by Stephen Peery <https://github.com/smp4488/>
 #ifndef PRESSED_KEY_PIN_STATE
 #    define PRESSED_KEY_PIN_STATE 1
 #endif
-#ifndef MATRIX_KEY_SAMPLE_DELAY
-#    define MATRIX_KEY_SAMPLE_DELAY 2000
-#endif
 #endif
 
 #ifndef PRESSED_KEY_PIN_STATE

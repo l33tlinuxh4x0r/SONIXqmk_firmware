@@ -59,6 +59,9 @@ static const pin_t led_row_pins[LED_MATRIX_ROWS_HW] = LED_MATRIX_ROW_PINS; // We
 static const pin_t led_col_pins[LED_MATRIX_COLS] = LED_MATRIX_COL_PINS;
 RGB led_state[DRIVER_LED_TOTAL]; // led state buffer
 bool enable_pwm = false;
+#ifdef UNDERGLOW_RBG // handle underglow with flipped B,G channels
+static const uint8_t underglow_leds[UNDERGLOW_LEDS] = UNDERGLOW_IDX;
+#endif
 
 /* PWM configuration structure. We use timer CT16B1 with 24 channels. */
 static PWMConfig pwmcfg = {
@@ -355,9 +358,26 @@ void SN32F24xB_init(void) {
 }
 
 void SN32F24xB_set_color(int index, uint8_t r, uint8_t g, uint8_t b) {
+#ifdef UNDERGLOW_RBG
+    bool flip_gb = false;
+        for(uint8_t led_id=0; led_id< UNDERGLOW_LEDS; led_id++) {
+            if(underglow_leds[led_id] == index){
+                flip_gb = true;
+            }
+        }
+        if (flip_gb) {
+            led_state[index].r = r;
+            led_state[index].b = g;
+            led_state[index].g = b;
+        }
+        else {
+#endif
             led_state[index].r = r;
             led_state[index].b = b;
             led_state[index].g = g;
+#ifdef UNDERGLOW_RBG
+        }
+#endif
 }
 
 void SN32F24xB_set_color_all(uint8_t r, uint8_t g, uint8_t b) {

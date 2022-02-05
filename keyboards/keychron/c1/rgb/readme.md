@@ -15,7 +15,7 @@ Make example for this keyboard (after setting up your build environment):
 ## How to Flash
 Flashing example for this keyboard:
 1. If your keyboard currently has stock firmware installed, put your keyboard first into bootloader by shorting the boot pins found under the spacebar before plugging in your keyboard to the PC. Otherwise, press `Fn + Esc` to put your keyboard into bootloader.
-1. Download and run [Sonix Flasher](https://github.com/SonixQMK/sonix-flasher/releases/tag/v0.2.1).
+1. Download and run [Sonix Flasher](https://github.com/SonixQMK/sonix-flasher/releases/latest).
 1. In Sonix Flasher, select `SN32F24X` under 'Device'. And select `0x00` as the qmk offset.
 1. Lastly, click 'Flash QMK...' and locate the compiled firmware.
 
@@ -41,10 +41,8 @@ F12 | Increase Volume
 Print Screen | Snip & Sketch
 Cortana / Microsoft Teams | None
 Change RGB | Toggle RGB
-Home | Increase RGB Saturation
-End | Decrease RGB Saturation
-Page Up | Increase RGB Hue
-Page Down | Decrease RGB Hue
+⊞ | Windows Key Lock Toggle
+Home | NKRO Toggle
 ↑ | Increase RGB Hue
 ← | Decrease RGB Saturation
 ↓ | Decrease RGB Hue
@@ -72,10 +70,7 @@ F12 | Increase Volume
 Take a screenshot (whole screen) | Take a screenshot (specific area)
 Siri (hold down) | None
 Change RGB | Toggle RGB
-Home | Increase RGB Saturation
-End | Decrease RGB Saturation
-Page Up | Increase RGB Hue
-Page Down | Decrease RGB Hue
+Home | NKRO Toggle
 ↑ | Increase RGB Hue
 ← | Decrease RGB Saturation
 ↓ | Decrease RGB Hue

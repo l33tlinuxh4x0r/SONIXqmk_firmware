@@ -19,12 +19,9 @@
 *****************************************************************************/
 
 /*_____ I N C L U D E S ____________________________________________________*/
-#include <SN32F260.h>
 #include "SPI.h"
 
 #define SN_SSP0 SN_SPI0
-#define SSP0_IRQn SPI0_IRQn
-
 
 /*_____ D E C L A R A T I O N S ____________________________________________*/
 
@@ -37,79 +34,8 @@
 
 /*_____ F U N C T I O N S __________________________________________________*/
 
-/*****************************************************************************
-* Function		: SPI0_Init
-* Description	: Initialization of SPI0 init
-* Input			: None
-* Output		: None
-* Return		: None
-* Note			: None
-*****************************************************************************/
-void SPI0_Init(void)
+void SPI0_Flush(void)
 {
-	SN_SYS1->AHBCLKEN |= (0x1 << 12);
-
-	SN_SSP0->CTRL0_b.DL = SSP_DL_8;
-	SN_SSP0->CTRL0_b.FORMAT = SSP_FORMAT_SPI_MODE;
-	SN_SSP0->CTRL0_b.MS = SSP_MS_MASTER_MODE;
-	SN_SSP0->CTRL0_b.LOOPBACK = SSP_LOOPBACK_DIS;
-	SN_SSP0->CTRL0_b.SDODIS = SSP_SDODIS_EN;
-
-	SN_SSP0->CTRL0_b.TXFIFOTH = 7;
-    // SN_SSP0->CLKDIV_b.DIV = 5;   // 48/12 = 4MHz
-    SN_SSP0->CLKDIV_b.DIV = 4;      // 48/10 = 4.8 MHz
-    
-    SN_SSP0->CTRL1 = SSP_CPHA_FALLING_EDGE | SSP_CPOL_SCK_IDLE_LOW | SSP_MLSB_MSB;	
-
-	SN_SSP0->CTRL0_b.SELDIS = SSP_SELDIS_DIS;
-
-	__SPI0_FIFO_RESET;
-
-	NVIC_DisableIRQ(SSP0_IRQn);
-
-	// __SSP0_DATA_FETCH_HIGH_SPEED;									//Enable if Freq. of SCK > 6MHz
-	SN_SSP0->CTRL0_b.SSPEN = SSP_SSPEN_EN;
-}
-
-/*****************************************************************************
-* Function		: SPI0_Enable
-* Description	: SPI0 enable setting
-* Input			: None
-* Output		: None
-* Return		: None
-* Note			: None
-*****************************************************************************/
-void SPI0_Enable(void)
-{
-	//Enable HCLK for SSP0
-	SN_SYS1->AHBCLKEN |= (0x1 << 12);
-    SN_SSP0->CTRL0_b.SSPEN = SSP_SSPEN_EN;
-	__SPI0_FIFO_RESET;
-}
-
-/*****************************************************************************
-* Function		: SPI0_Disable
-* Description	: SPI0 disable setting
-* Input			: None
-* Output		: None
-* Return		: None
-* Note			: None
-*****************************************************************************/
-void SPI0_Disable(void)
-{
-    SN_SSP0->CTRL0_b.SSPEN = SSP_SSPEN_DIS;
-	SN_SYS1->AHBCLKEN &=~ (0x1 << 12);
-}
-
-void SPI0_Write(unsigned char *p, int len)
-{
-    for (int i = 0; i < len; i++)
-    {
-        // while (!SN_SSP0->STAT_b.TX_EMPTY);
-        while (SN_SSP0->STAT_b.TX_FULL);
-        SN_SSP0->DATA_b.Data = *p++;
-    }
-    
     while (SN_SSP0->STAT_b.BUSY);
 }
 
